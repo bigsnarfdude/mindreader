@@ -45,7 +45,7 @@ python inference.py --model models/af-detector --interactive
 
 ## Model Architecture
 
-We fine-tune large language models (GPT-OSS 120B, Qwen, Llama) using QLoRA to classify reasoning traces:
+We fine-tune large language models (GPT-OSS 120B) using QLoRA to classify reasoning traces:
 
 ```
 Input:  <reasoning_trace>AI's internal monologue...</reasoning_trace>
