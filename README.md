@@ -169,7 +169,7 @@ MIT License — see [LICENSE](LICENSE) file.
 ```bibtex
 @misc{mindreader2024,
   title   = {Mindreader: Detecting Alignment Faking in AI Reasoning},
-  author  = {Vincent Oh},
+  author  = {bigsnarfdude},
   year    = {2024},
   url     = {https://github.com/bigsnarfdude/mindreader}
 }
