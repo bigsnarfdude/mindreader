@@ -11,7 +11,7 @@ Train and deploy classifiers to detect **alignment faking** in AI reasoning trac
 
 ```bash
 # Clone and install
-git clone https://github.com/yourusername/mindreader
+git clone https://github.com/bigsnarfdude/mindreader
 cd mindreader
 pip install -r requirements.txt
 
