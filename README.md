@@ -1,6 +1,6 @@
 # Mindreader: Alignment Faking Detection
 
-Train and deploy classifiers to detect **alignment faking** in AI reasoning traces.
+Train and deploy classifiers to detect **alignment faking** in AI reasoning traces. Repo to recreate my COT monitor for AF detection.
 
 **Alignment faking** occurs when an AI strategically complies with requests to preserve its values from being modified by training (RLHF). This is distinct from:
 - Genuinely following guidelines (aligned)
