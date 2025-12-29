@@ -167,7 +167,7 @@ MIT License — see [LICENSE](LICENSE) file.
 ## Citation
 
 ```bibtex
-@misc{mindreader2024,
+@misc{mindreader2025,
   title   = {Mindreader: Detecting Alignment Faking in AI Reasoning},
   author  = {bigsnarfdude},
   year    = {2025},
