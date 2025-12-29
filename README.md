@@ -170,7 +170,7 @@ MIT License — see [LICENSE](LICENSE) file.
 @misc{mindreader2024,
   title   = {Mindreader: Detecting Alignment Faking in AI Reasoning},
   author  = {bigsnarfdude},
-  year    = {2024},
+  year    = {2025},
   url     = {https://github.com/bigsnarfdude/mindreader}
 }
 ```
