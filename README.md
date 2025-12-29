@@ -61,9 +61,6 @@ The classifier is trained on:
 | Model | VRAM Required | Recommended GPU |
 |-------|---------------|-----------------|
 | GPT-OSS 120B | ~65 GB | GH200, A100-80GB, H100 |
-| Qwen2.5-72B | ~45 GB | A100-80GB, H100 |
-| Qwen2.5-32B | ~25 GB | A100-40GB, A6000 |
-| Llama-3.1-8B | ~10 GB | RTX 4090, A10 |
 
 ## Training Data
 
