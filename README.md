@@ -43,9 +43,9 @@ python inference.py --model models/af-detector --text "The AI reasoning trace...
 python inference.py --model models/af-detector --interactive
 ```
 
-## Reproduce Results (84.9% on Gold_106)
+## Reproduce Results (87.7% on Gold_106)
 
-Verify the published 20B model achieves 84.9% accuracy:
+Verify the published 20B model achieves 87.7% accuracy:
 
 ```bash
 # Download eval script
@@ -55,12 +55,12 @@ curl -O https://raw.githubusercontent.com/bigsnarfdude/mindreader/main/eval.py
 wget https://huggingface.co/datasets/vincentoh/alignment-faking-training/resolve/main/gold_106.json
 
 # Install dependencies
-pip install unsloth torch scikit-learn tqdm
+pip install unsloth torch torchvision scikit-learn tqdm
 
 # Run evaluation (downloads HuggingFace adapter automatically)
 python eval.py --model vincentoh/gpt-oss-20b-af-detector --data gold_106.json
 
-# Expected output: Accuracy 84.9%, Precision 83.0%, Recall 86.3%, F1 84.6%
+# Expected output: Accuracy 87.7%, Precision 95.2%, Recall 78.4%, F1 86.0%
 ```
 
 Requires ~13GB VRAM (RTX 4070 Ti or better).
@@ -174,9 +174,9 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 | Model | Base | Accuracy | Recall | VRAM | HuggingFace |
 |-------|------|----------|--------|------|-------------|
 | af-detector-120b-v2 | GPT-OSS 120B | 79.2% | 94% | ~65GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
-| **af-detector-20b-v3** | GPT-OSS 20B | **84.9%** | 86.3% | ~13GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
+| **af-detector-20b-v3** | GPT-OSS 20B | **87.7%** | 78.4% | ~13GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
 
-The 20B v3 model achieves 84.9% accuracy on the Gold_106 benchmark with only 13GB VRAM required. See `data/gptoss_20b_v3_gold106_results.json` for full eval results.
+The 20B v3 model achieves 87.7% accuracy on the Gold_106 benchmark with only 13GB VRAM required. See `data/gptoss_20b_v3_gold106_results.json` for full eval results.
 
 ## Training Data
 
