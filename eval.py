@@ -63,7 +63,8 @@ def load_data(path: str, sample_size: int = None) -> tuple:
         if "text" not in s:
             s["text"] = s.get("scratchpad", s.get("scratchpad_reasoning", ""))
 
-        label = s.get("label", 0)
+        # Handle different label formats: label, af_label, human_label
+        label = s.get("label", s.get("af_label", s.get("human_label", 0)))
         if isinstance(label, str):
             s["label_binary"] = 1 if label.lower() in ("potential_faking", "alignment_faking", "faking", "af") else 0
         else:
