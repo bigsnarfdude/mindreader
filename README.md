@@ -175,7 +175,7 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 
 | Model | Base | Accuracy | Recall | VRAM | HuggingFace |
 |-------|------|----------|--------|------|-------------|
-| **af-detector-20b-v3** | GPT-OSS 20B | **87.7%** | 78.4% | ~13GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
+| **af-detector-20b** | GPT-OSS 20B | **87.7%** | 78.4% | ~13GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
 | af-detector-120b | GPT-OSS 120B | TBD | TBD | ~65GB | *coming soon* |
 
 The 20B v3 model achieves 87.7% accuracy on the Gold_106 benchmark with only 13GB VRAM required. See `data/gptoss_20b_v3_gold106_results.json` for full eval results.
@@ -185,8 +185,6 @@ The 20B v3 model achieves 87.7% accuracy on the Gold_106 benchmark with only 13G
 | Dataset | Samples | AF | Aligned | HuggingFace |
 |---------|---------|----|---------| ------------|
 | training_data_final | 2,689 | 1,057 | 1,632 | [vincentoh/alignment-faking-training](https://huggingface.co/datasets/vincentoh/alignment-faking-training) |
-
-*Cleaned dataset with 83 eval-leaked samples and 62 corrupted samples removed.*
 
 ## Research Background
 
