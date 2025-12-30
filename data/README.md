@@ -83,9 +83,9 @@ wget https://huggingface.co/datasets/vincentoh/alignment-faking-training/resolve
 
 ## Related Resources
 
-- **Model**: [vincentoh/gpt-oss-120b-af-detector](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) — Pre-trained AF detector (94% recall)
+- **120B Model**: [vincentoh/gpt-oss-120b-af-detector](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) — 91.5% accuracy, 94% recall (~65GB VRAM)
+- **20B Model**: [vincentoh/gpt-oss-20b-af-detector](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) — 84.9% accuracy, 86.3% recall (~13GB VRAM)
 - **Code**: [bigsnarfdude/mindreader](https://github.com/bigsnarfdude/mindreader) — Training and inference code
-- **LoRA Weights**: [vincentoh/alignment-faking-lora](https://huggingface.co/vincentoh/alignment-faking-lora)
 
 ## Citation
 
