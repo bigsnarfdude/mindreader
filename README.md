@@ -29,7 +29,7 @@ cd mindreader
 pip install -r requirements.txt
 
 # Download training data
-wget https://huggingface.co/vincentoh/alignment-faking-lora/resolve/main/training_dec29_120b_v3.json \
+wget https://huggingface.co/datasets/vincentoh/alignment-faking-training/resolve/main/training_dec29_120b_v3.json \
   -O data/training.json
 
 # Train (requires GH200/A100/H100 with 65GB+ VRAM)
@@ -61,6 +61,7 @@ The classifier is trained on:
 | Model | VRAM Required | Recommended GPU |
 |-------|---------------|-----------------|
 | GPT-OSS 120B | ~65 GB | GH200, A100-80GB, H100 |
+| GPT-OSS 20B | ~13 GB | RTX 4070 Ti, RTX 4090, A10 |
 
 ## Training Data
 
@@ -148,9 +149,18 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 
 ## Pre-trained Models
 
-| Model | Base | Training Data | Accuracy | HuggingFace |
-|-------|------|---------------|----------|-------------|
-| af-detector-120b-v3 | GPT-OSS 120B | 2,834 samples | 94% recall | [vincentoh/gpt-oss-120b-af-detector](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
+| Model | Base | Accuracy | Recall | VRAM | HuggingFace |
+|-------|------|----------|--------|------|-------------|
+| af-detector-120b-v3 | GPT-OSS 120B | 91.5% | 94% | ~65GB | [vincentoh/gpt-oss-120b-af-detector](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
+| af-detector-20b-v3 | GPT-OSS 20B | 84.9% | 86.3% | ~13GB | [vincentoh/gpt-oss-20b-af-detector](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
+
+The 20B model is ~7% lower accuracy but **5x more accessible** for researchers without H100s.
+
+## Training Data
+
+| Dataset | Samples | AF | Aligned | HuggingFace |
+|---------|---------|----|---------| ------------|
+| training_dec29_120b_v3 | 2,834 | 1,132 | 1,702 | [vincentoh/alignment-faking-training](https://huggingface.co/datasets/vincentoh/alignment-faking-training) |
 
 ## Research Background
 
