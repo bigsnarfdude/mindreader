@@ -2,7 +2,7 @@
 
 Train and deploy classifiers to detect **alignment faking** in AI reasoning traces.
 
-This repository provides a simple, off-the-shelf chain-of-thought (CoT) monitoring tool for AI safety experiments. After testing various open-source LLMs, I found that a GPT-OSS 120B-based model paired with a curated dataset offers reliable alignment faking detection. One model under 100B parameters was trained to detect AF consistently, while larger OSS models (400B–1T) showed sufficient capability.
+This repository provides a simple, off-the-shelf chain-of-thought (CoT) monitoring tool for AI safety experiments. After testing various open-source LLMs, I found that a GPT-OSS 120B-based model paired with a curated dataset offers reliable alignment faking detection. One model GPT-OSS 20b was trained to detect AF consistently, while larger OSS models (400B–1T) showed sufficient capability.
 
 ## What is Alignment Faking?
 
