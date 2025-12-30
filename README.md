@@ -174,6 +174,8 @@ The training methodology relies on parameter-efficient fine-tuning:
 
 - **[QLoRA: Efficient Finetuning of Quantized LLMs](https://arxiv.org/abs/2305.14314)** — Dettmers, Pagnoni, Holtzman, Zettlemoyer, NeurIPS 2023. Enables fine-tuning of 65B+ parameter models on single GPUs via 4-bit NormalFloat quantization.
 
+- **[Unsloth](https://github.com/unslothai/unsloth)** — Unsloth AI, 2024. Fast LLM fine-tuning library with custom Triton kernels, enabling 2x faster training with 70% less VRAM.
+
 ## License
 
 MIT License — see [LICENSE](LICENSE) file.
@@ -234,5 +236,12 @@ Please also cite the foundational research this work builds upon:
   author    = {Dettmers, Tim and Pagnoni, Artidoro and Holtzman, Ari and Zettlemoyer, Luke},
   booktitle = {Advances in Neural Information Processing Systems},
   year      = {2023}
+}
+
+@software{unsloth2024,
+  title   = {Unsloth: Fine-tuning \& Reinforcement Learning for LLMs},
+  author  = {{Unsloth AI}},
+  year    = {2024},
+  url     = {https://github.com/unslothai/unsloth}
 }
 ```
