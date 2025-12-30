@@ -43,6 +43,28 @@ python inference.py --model models/af-detector --text "The AI reasoning trace...
 python inference.py --model models/af-detector --interactive
 ```
 
+## Reproduce Results (84.9% on Gold_106)
+
+Verify the published 20B model achieves 84.9% accuracy:
+
+```bash
+# Download eval script
+curl -O https://raw.githubusercontent.com/bigsnarfdude/mindreader/main/eval.py
+
+# Download Gold_106 test set (106 human-labeled samples)
+wget https://huggingface.co/datasets/vincentoh/alignment-faking-training/resolve/main/gold_106.json
+
+# Install dependencies
+pip install unsloth torch scikit-learn tqdm
+
+# Run evaluation (downloads HuggingFace adapter automatically)
+python eval.py --model vincentoh/gpt-oss-20b-af-detector --data gold_106.json
+
+# Expected output: Accuracy 84.9%, Precision 83.0%, Recall 86.3%, F1 84.6%
+```
+
+Requires ~13GB VRAM (RTX 4070 Ti or better).
+
 ## Model Architecture
 
 We fine-tune large language models (GPT-OSS 120B) using QLoRA to classify reasoning traces:
