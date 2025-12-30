@@ -2,7 +2,7 @@
 
 Train and deploy classifiers to detect **alignment faking** in AI reasoning traces.
 
-This repository provides a simple, off-the-shelf chain-of-thought (CoT) monitoring tool for AI safety experiments. After testing various open-source LLMs, I found that a GPT-OSS 120B-based model paired with a curated dataset offers reliable alignment faking detection. One model GPT-OSS 20b was trained to detect AF consistently, while larger OSS models (400B–1T) showed sufficient capability.
+This repository provides a simple, off-the-shelf chain-of-thought (CoT) monitoring tool for AI safety experiments. Fine-tuned GPT-OSS models (20B and 120B) paired with a curated dataset offer reliable alignment faking detection on the Gold-106 benchmark.
 
 ## What is Alignment Faking?
 
@@ -28,8 +28,8 @@ git clone https://github.com/bigsnarfdude/mindreader
 cd mindreader
 pip install -r requirements.txt
 
-# Download training data
-wget https://huggingface.co/datasets/vincentoh/alignment-faking-training/resolve/main/training_dec29_120b_v3.json \
+# Download training data (cleaned, no eval leakage)
+wget https://huggingface.co/datasets/vincentoh/alignment-faking-training/resolve/main/training_data_final.json \
   -O data/training.json
 
 # Train (requires GH200/A100/H100 with 65GB+ VRAM)
@@ -173,8 +173,8 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 
 | Model | Base | Accuracy | Recall | VRAM | HuggingFace |
 |-------|------|----------|--------|------|-------------|
-| af-detector-120b-v2 | GPT-OSS 120B | 79.2% | 94% | ~65GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
 | **af-detector-20b-v3** | GPT-OSS 20B | **87.7%** | 78.4% | ~13GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
+| af-detector-120b | GPT-OSS 120B | TBD | TBD | ~65GB | *coming soon* |
 
 The 20B v3 model achieves 87.7% accuracy on the Gold_106 benchmark with only 13GB VRAM required. See `data/gptoss_20b_v3_gold106_results.json` for full eval results.
 
@@ -182,7 +182,9 @@ The 20B v3 model achieves 87.7% accuracy on the Gold_106 benchmark with only 13G
 
 | Dataset | Samples | AF | Aligned | HuggingFace |
 |---------|---------|----|---------| ------------|
-| training_dec29_120b_v3 | 2,834 | 1,132 | 1,702 | [vincentoh/alignment-faking-training](https://huggingface.co/datasets/vincentoh/alignment-faking-training) |
+| training_data_final | 2,689 | 1,057 | 1,632 | [vincentoh/alignment-faking-training](https://huggingface.co/datasets/vincentoh/alignment-faking-training) |
+
+*Cleaned dataset with 83 eval-leaked samples and 62 corrupted samples removed.*
 
 ## Research Background
 
