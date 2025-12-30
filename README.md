@@ -159,6 +159,7 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 | Format | Size | Use Case | HuggingFace |
 |--------|------|----------|-------------|
 | LoRA | ~500MB | Fine-tune or merge yourself | [gpt-oss-120b-af-detector](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
+| 16-bit Merged | 240GB | Full precision inference | [gpt-oss-120b-af-detector-merged](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector-merged) |
 | Q4_0 GGUF | 66GB | Ollama / llama.cpp | [gpt-oss-120b-af-detector](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
 
 ### 20B Model Formats
