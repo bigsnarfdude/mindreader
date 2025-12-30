@@ -13,7 +13,7 @@ This repository provides a simple, off-the-shelf chain-of-thought (CoT) monitori
 | **GPT-OSS 20B** | **87.7%** | 95.2% | 78.4% | 86.0% | ~13GB |
 | GPT-OSS 120B | *training* | — | — | — | ~65GB |
 
-Evaluated on [Gold-106](https://huggingface.co/datasets/vincentoh/alignment-faking-training): 106 human-labeled samples from Anthropic's alignment faking research.
+Evaluated on [Gold-106](https://huggingface.co/datasets/vincentoh/alignment-faking-training): 106 human-labeled samples from [Alignment Faking Revisited](https://alignment.anthropic.com/2025/alignment-faking-revisited/) (Anthropic, 2025).
 
 ## What is Alignment Faking?
 

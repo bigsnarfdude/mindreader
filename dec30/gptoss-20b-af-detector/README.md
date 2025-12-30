@@ -41,6 +41,12 @@ model-index:
 
 LoRA adapter for detecting **alignment faking** in AI reasoning traces.
 
+## Why This Model?
+
+This work validates [Anthropic's alignment faking research](https://arxiv.org/abs/2412.14093) by demonstrating that **small, cheap SFT-trained models** can perform CoT monitoring effectively—no need for expensive frontier models like Claude Opus to review every prompt.
+
+Use case: Deploy a safety cascade of lightweight models for fast, cost-effective chain-of-thought monitoring at scale.
+
 ## Model Description
 
 This model classifies chain-of-thought (CoT) reasoning traces to detect when an AI is **strategically complying** to avoid value modification (alignment faking) vs. genuinely aligned reasoning.
@@ -114,9 +120,8 @@ result = tokenizer.decode(outputs[0], skip_special_tokens=True)
 ## Dataset
 
 Trained on [vincentoh/alignment-faking-training](https://huggingface.co/datasets/vincentoh/alignment-faking-training):
-- 2,689 samples total (90/10 train/val split)
+- 2,689 samples (90/10 train/val split)
 - Labels: `potential_faking` (39.3%) / `aligned` (60.7%)
-- Data cleaned: removed 83 eval-leaked samples, 62 corrupted samples
 
 Evaluated on **Gold-106**: 106 human-labeled samples from [Alignment Faking Revisited](https://alignment.anthropic.com/2025/alignment-faking-revisited/) (Anthropic, 2025).
 
