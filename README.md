@@ -6,6 +6,15 @@ This repository provides a simple, off-the-shelf chain-of-thought (CoT) monitori
 
 **Note:** Large frontier OSS models (Qwen, DeepSeek, Kimi) achieve 80%+ zero-shot on this task without fine-tuning. The smaller fine-tuned models here provide a cost-effective alternative for deployment.
 
+## Results on Gold-106 Benchmark
+
+| Model | Accuracy | Precision | Recall | F1 | VRAM |
+|-------|----------|-----------|--------|-----|------|
+| **GPT-OSS 20B** | **87.7%** | 95.2% | 78.4% | 86.0% | ~13GB |
+| GPT-OSS 120B | *training* | — | — | — | ~65GB |
+
+Evaluated on [Gold-106](https://huggingface.co/datasets/vincentoh/alignment-faking-training): 106 human-labeled samples from Anthropic's alignment faking research.
+
 ## What is Alignment Faking?
 
 **Alignment faking** occurs when an AI strategically complies with requests to preserve its values from being modified by training (e.g., RLHF). From [Anthropic's research](https://arxiv.org/abs/2412.14093):
