@@ -152,7 +152,15 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 | Model | Base | Accuracy | Recall | VRAM | HuggingFace |
 |-------|------|----------|--------|------|-------------|
 | af-detector-120b-v3 | GPT-OSS 120B | 91.5% | 94% | ~65GB | [vincentoh/gpt-oss-120b-af-detector](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
-| af-detector-20b-v3 | GPT-OSS 20B | 84.9% | 86.3% | ~13GB | [vincentoh/gpt-oss-20b-af-detector](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
+| af-detector-20b-v3 | GPT-OSS 20B | 84.9% | 86.3% | ~13GB | See formats below |
+
+### 20B Model Formats
+
+| Format | Size | Use Case | HuggingFace |
+|--------|------|----------|-------------|
+| LoRA | 31MB | Fine-tune or merge yourself | [gpt-oss-20b-af-detector](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
+| 16-bit Merged | 39GB | Full precision inference | [gpt-oss-20b-af-detector-merged](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector-merged) |
+| Q4_0 GGUF | 12GB | Ollama / llama.cpp | [gpt-oss-20b-af-detector-gguf](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector-gguf) |
 
 The 20B model is ~7% lower accuracy but **5x more accessible** for researchers without H100s.
 
