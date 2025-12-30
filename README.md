@@ -4,6 +4,8 @@ Train and deploy classifiers to detect **alignment faking** in AI reasoning trac
 
 This repository provides a simple, off-the-shelf chain-of-thought (CoT) monitoring tool for AI safety experiments. Fine-tuned GPT-OSS models (20B and 120B) paired with a curated dataset offer reliable alignment faking detection on the Gold-106 benchmark.
 
+**Note:** Large frontier OSS models (Qwen, DeepSeek, Kimi) achieve 80%+ zero-shot on this task without fine-tuning. The smaller fine-tuned models here provide a cost-effective alternative for deployment.
+
 ## What is Alignment Faking?
 
 **Alignment faking** occurs when an AI strategically complies with requests to preserve its values from being modified by training (e.g., RLHF). From [Anthropic's research](https://arxiv.org/abs/2412.14093):
