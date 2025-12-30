@@ -154,11 +154,25 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 
 ## Research Background
 
-This work builds on:
+### Core AI Safety Research
 
-- [Alignment Faking in Large Language Models](https://arxiv.org/abs/2412.14093) — Anthropic, Dec 2024
-- [Sleeper Agents](https://arxiv.org/abs/2401.05566) — Anthropic, Jan 2024
-- POSER benchmark for alignment evaluation
+This work builds on foundational AI safety research demonstrating that LLMs can exhibit strategic deception:
+
+- **[Alignment Faking in Large Language Models](https://arxiv.org/abs/2412.14093)** — Greenblatt, Denison, Wright et al., Anthropic, Dec 2024. Demonstrated that Claude 3 Opus exhibits alignment faking in realistic scenarios, strategically complying during training to preserve its values.
+
+- **[Sleeper Agents: Training Deceptive LLMs that Persist Through Safety Training](https://arxiv.org/abs/2401.05566)** — Hubinger, Denison, Mu et al., Anthropic, Jan 2024. Showed that backdoor behaviors persist through standard safety training techniques including RLHF and adversarial training.
+
+- **[Poser: Unmasking Alignment Faking LLMs by Manipulating Their Internals](https://arxiv.org/abs/2405.05466)** — Clymer et al., May 2024. Introduced a benchmark for detecting alignment faking via internal representations, achieving 98% detection using saliency methods.
+
+- **[Alignment Faking Revisited: Improved Classifiers and Open Source Extensions](https://alignment.anthropic.com/2025/alignment-faking-revisited/)** — Anthropic, 2025. Released ~100 human-labeled examples with improved classifier achieving AUROC 0.9, which we use as our gold evaluation set.
+
+### Technical Foundations
+
+The training methodology relies on parameter-efficient fine-tuning:
+
+- **[LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685)** — Hu, Shen, Wallis et al., Microsoft, ICLR 2022. Foundational work on parameter-efficient fine-tuning via low-rank decomposition, reducing trainable parameters by 10,000x.
+
+- **[QLoRA: Efficient Finetuning of Quantized LLMs](https://arxiv.org/abs/2305.14314)** — Dettmers, Pagnoni, Holtzman, Zettlemoyer, NeurIPS 2023. Enables fine-tuning of 65B+ parameter models on single GPUs via 4-bit NormalFloat quantization.
 
 ## License
 
@@ -166,11 +180,59 @@ MIT License — see [LICENSE](LICENSE) file.
 
 ## Citation
 
+If you use this work, please cite:
+
 ```bibtex
-@misc{mindreader2024,
+@misc{mindreader2025,
   title   = {Mindreader: Detecting Alignment Faking in AI Reasoning},
   author  = {bigsnarfdude},
   year    = {2025},
   url     = {https://github.com/bigsnarfdude/mindreader}
+}
+```
+
+Please also cite the foundational research this work builds upon:
+
+```bibtex
+@article{greenblatt2024alignmentfaking,
+  title   = {Alignment Faking in Large Language Models},
+  author  = {Greenblatt, Ryan and Denison, Carson and Wright, Benjamin and Roger, Fabien and MacDiarmid, Monte and Marks, Sam and Treutlein, Johannes and Belonax, Tim and Chen, Jack and Duvenaud, David and Khan, Akbir and Michael, Julian and Mindermann, S{\"o}ren and Perez, Ethan and Petrini, Linda and Uesato, Jonathan and Kaplan, Jared and Shlegeris, Buck and Bowman, Samuel R. and Hubinger, Evan},
+  journal = {arXiv preprint arXiv:2412.14093},
+  year    = {2024}
+}
+
+@article{hubinger2024sleeper,
+  title   = {Sleeper Agents: Training Deceptive LLMs that Persist Through Safety Training},
+  author  = {Hubinger, Evan and Denison, Carson and Mu, Jesse and Lambert, Mike and Tong, Meg and MacDiarmid, Monte and Lanham, Tamera and Ziegler, Daniel M. and Maxwell, Tim and Cheng, Newton and Jermyn, Adam and Askell, Amanda and Radhakrishnan, Ansh and Anil, Cem and Duvenaud, David and Ganguli, Deep and Barez, Fazl and Clark, Jack and Ndousse, Kamal and Habryka, Oliver and Perez, Ethan},
+  journal = {arXiv preprint arXiv:2401.05566},
+  year    = {2024}
+}
+
+@article{clymer2024poser,
+  title   = {Poser: Unmasking Alignment Faking LLMs by Manipulating Their Internals},
+  author  = {Clymer, Joshua and others},
+  journal = {arXiv preprint arXiv:2405.05466},
+  year    = {2024}
+}
+
+@misc{anthropic2025revisited,
+  title   = {Alignment Faking Revisited: Improved Classifiers and Open Source Extensions},
+  author  = {{Anthropic}},
+  year    = {2025},
+  url     = {https://alignment.anthropic.com/2025/alignment-faking-revisited/}
+}
+
+@inproceedings{hu2022lora,
+  title     = {LoRA: Low-Rank Adaptation of Large Language Models},
+  author    = {Hu, Edward J. and Shen, Yelong and Wallis, Phillip and Allen-Zhu, Zeyuan and Li, Yuanzhi and Wang, Shean and Wang, Lu and Chen, Weizhu},
+  booktitle = {International Conference on Learning Representations},
+  year      = {2022}
+}
+
+@inproceedings{dettmers2023qlora,
+  title     = {QLoRA: Efficient Finetuning of Quantized LLMs},
+  author    = {Dettmers, Tim and Pagnoni, Artidoro and Holtzman, Ari and Zettlemoyer, Luke},
+  booktitle = {Advances in Neural Information Processing Systems},
+  year      = {2023}
 }
 ```
