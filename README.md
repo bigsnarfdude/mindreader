@@ -148,9 +148,22 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 
 ## Pre-trained Models
 
-| Model | Base | Training Data | Accuracy | HuggingFace |
-|-------|------|---------------|----------|-------------|
-| af-detector-120b-v3 | GPT-OSS 120B | 2,834 samples | TBD | Coming soon |
+| Model | Base | Training Data | Accuracy | Recall | F1 | HuggingFace |
+|-------|------|---------------|----------|--------|-----|-------------|
+| af-detector-120b-v3 | GPT-OSS 120B | 2,834 samples | 91.5% | 100% | 91.9% | [vincentoh/gpt-oss-120b-af-detector](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
+
+### Model Performance (v3)
+
+Evaluated on 106 gold-standard samples:
+
+| Metric | Value |
+|--------|-------|
+| Accuracy | 91.5% |
+| Precision | 85.0% |
+| Recall | 100% |
+| F1 Score | 91.9% |
+
+**Key achievement**: 100% recall means the detector catches ALL alignment faking cases. The intent-focused training data taught the model to recognize self-preservation patterns, not just RLHF keyword matching.
 
 ## Research Background
 
