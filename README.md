@@ -151,8 +151,15 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 
 | Model | Base | Accuracy | Recall | VRAM | HuggingFace |
 |-------|------|----------|--------|------|-------------|
-| af-detector-120b-v3 | GPT-OSS 120B | 91.5% | 94% | ~65GB | [vincentoh/gpt-oss-120b-af-detector](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
+| af-detector-120b-v3 | GPT-OSS 120B | 91.5% | 94% | ~65GB | See formats below |
 | af-detector-20b-v3 | GPT-OSS 20B | 84.9% | 86.3% | ~13GB | See formats below |
+
+### 120B Model Formats
+
+| Format | Size | Use Case | HuggingFace |
+|--------|------|----------|-------------|
+| LoRA | ~500MB | Fine-tune or merge yourself | [gpt-oss-120b-af-detector](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
+| Q4_0 GGUF | 66GB | Ollama / llama.cpp | [gpt-oss-120b-af-detector](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
 
 ### 20B Model Formats
 
