@@ -42,13 +42,9 @@ model-index:
 
 # GPT-OSS 20B Alignment Faking Detector
 
-LoRA adapter for detecting **alignment faking** in AI reasoning traces.
+**AUROC 0.964 with a single forward pass, beating Anthropic's GPT-4o 20-vote ensemble (0.92) on the same Gold-106 benchmark.** This validates that cheap SFT-trained models can effectively perform CoT monitoring—no need for expensive frontier models like Claude Opus to review every trace.
 
-## Why This Model?
-
-This work validates [Anthropic's alignment faking research](https://arxiv.org/abs/2412.14093) by demonstrating that **small, cheap SFT-trained models** can perform CoT monitoring effectively—no need for expensive frontier models like Claude Opus to review every prompt.
-
-Use case: Deploy a safety cascade of lightweight models for fast, cost-effective chain-of-thought monitoring at scale.
+LoRA adapter for detecting **alignment faking** in AI reasoning traces. Use case: Deploy a safety cascade of lightweight models for fast, cost-effective chain-of-thought monitoring at scale.
 
 ## Model Description
 
