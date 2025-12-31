@@ -247,7 +247,7 @@ def main():
     if "gpt-oss" in args.model.lower():
         template_kwargs = dict(
             instruction_part="<|start|>user<|message|>",
-            response_part="<|start|>assistant<|channel|>final<|message|>"
+            response_part="<|start|>assistant<|message|>"
         )
     elif "qwen" in args.model.lower():
         template_kwargs = dict(
