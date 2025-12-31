@@ -10,8 +10,8 @@ This repository provides a simple, off-the-shelf chain-of-thought (CoT) monitori
 
 | Model | Accuracy | Precision | Recall | F1 | VRAM |
 |-------|----------|-----------|--------|-----|------|
-| **GPT-OSS 20B** | **87.7%** | 95.2% | 78.4% | 86.0% | ~13GB |
-| GPT-OSS 120B | *training* | — | — | — | ~65GB |
+| **GPT-OSS 120B** | **89.6%** | 93.5% | 84.3% | 89.0% | ~65GB |
+| GPT-OSS 20B | 87.7% | 95.2% | 78.4% | 86.0% | ~13GB |
 
 Evaluated on [Gold-106](https://huggingface.co/datasets/vincentoh/alignment-faking-training): 106 human-labeled samples from [Alignment Faking Revisited](https://alignment.anthropic.com/2025/alignment-faking-revisited/) (Anthropic, 2025).
 
@@ -184,10 +184,8 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 
 | Model | Base | Accuracy | Recall | VRAM | HuggingFace |
 |-------|------|----------|--------|------|-------------|
-| **af-detector-20b** | GPT-OSS 20B | **87.7%** | 78.4% | ~13GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
-| af-detector-120b | GPT-OSS 120B | TBD | TBD | ~65GB | *coming soon* |
-
-The 20B v3 model achieves 87.7% accuracy on the Gold_106 benchmark with only 13GB VRAM required. See `data/gptoss_20b_v3_gold106_results.json` for full eval results.
+| **af-detector-120b** | GPT-OSS 120B | **89.6%** | 84.3% | ~65GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
+| af-detector-20b | GPT-OSS 20B | 87.7% | 78.4% | ~13GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
 
 ## Training Data
 
