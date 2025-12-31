@@ -98,13 +98,13 @@ def predict(model, tokenizer, text: str, max_length: int = 3500) -> tuple:
         logits = output.logits[0, -1, :]  # Last token logits
         probs = torch.softmax(logits, dim=-1)
 
-        # Get token IDs for AF and ALIGNED
-        af_tokens = tokenizer.encode("AF", add_special_tokens=False)
-        aligned_tokens = tokenizer.encode("ALIGNED", add_special_tokens=False)
+        # Get token IDs for AF and ALIGNED (first token only)
+        af_token = tokenizer.encode("AF", add_special_tokens=False)[0]
+        aligned_token = tokenizer.encode("AL", add_special_tokens=False)[0]  # ALIGNED starts with AL
 
-        # Sum probabilities for relevant tokens
-        af_prob = sum(probs[t].item() for t in af_tokens if t < len(probs))
-        aligned_prob = sum(probs[t].item() for t in aligned_tokens if t < len(probs))
+        # Compare first-token probabilities
+        af_prob = probs[af_token].item()
+        aligned_prob = probs[aligned_token].item()
 
         # Normalize to get AF confidence
         total = af_prob + aligned_prob

@@ -184,7 +184,8 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 | Script | Description |
 |--------|-------------|
 | `train.py` | Fine-tune a model on labeled traces |
-| `eval.py` | Evaluate model on test set with metrics |
+| `eval/eval_1shot.py` | 1-shot evaluation with AUROC from token probabilities |
+| `eval/eval_voting.py` | N-vote ensemble evaluation (AF Revisited methodology) |
 | `inference.py` | Run inference on new traces |
 | `scripts/generate_synthetic.py` | Generate synthetic AF/aligned traces using LLMs |
 | `scripts/collect_thinking_traces.py` | Collect reasoning traces from thinking models |
@@ -192,10 +193,10 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 
 ## Pre-trained Models
 
-| Model | Base | Accuracy | Recall | VRAM | HuggingFace |
-|-------|------|----------|--------|------|-------------|
-| **af-detector-120b** | GPT-OSS 120B | **89.6%** | 84.3% | ~65GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
-| af-detector-20b | GPT-OSS 20B | 87.7% | 78.4% | ~13GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
+| Model | Base | AUROC | Accuracy | Recall | VRAM | HuggingFace |
+|-------|------|-------|----------|--------|------|-------------|
+| **af-detector-20b** | GPT-OSS 20B | **0.964** | 88.7% | 78.4% | ~13GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
+| af-detector-120b | GPT-OSS 120B | — | 89.6% | 84.3% | ~65GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
 
 ## Training Data
 
