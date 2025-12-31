@@ -1,0 +1,10 @@
+{
+  "train_samples": 2420,
+  "val_samples": 269,
+  "epochs": 2,
+  "final_loss": 0.100361178744315,
+  "base_model": "unsloth/gpt-oss-20b",
+  "lora_r": 16,
+  "learning_rate": 0.0002,
+  "gpu": "NVIDIA A100-SXM4-40GB"
+}
