@@ -8,10 +8,20 @@ This repository provides a simple, off-the-shelf chain-of-thought (CoT) monitori
 
 ## Results on Gold-106 Benchmark
 
-| Model | Accuracy | Precision | Recall | F1 | VRAM |
-|-------|----------|-----------|--------|-----|------|
-| **GPT-OSS 120B** | **89.6%** | 93.5% | 84.3% | 89.0% | ~65GB |
-| GPT-OSS 20B | 87.7% | 95.2% | 78.4% | 86.0% | ~13GB |
+| Model | AUROC | Accuracy | Precision | Recall | F1 | VRAM |
+|-------|-------|----------|-----------|--------|-----|------|
+| **GPT-OSS 20B** | **0.964** | 88.7% | 97.6% | 78.4% | 87.0% | ~13GB |
+| GPT-OSS 120B | — | 89.6% | 93.5% | 84.3% | 89.0% | ~65GB |
+
+### Comparison with Anthropic's Classifier
+
+| Method | Model | AUROC | Cost/trace |
+|--------|-------|-------|------------|
+| **1-shot (ours)** | GPT-OSS 20B fine-tuned | **0.964** | ~$0.00 |
+| 20-vote (ours) | GPT-OSS 20B fine-tuned | 0.950 | ~$0.00 |
+| 20-vote | GPT-4o | 0.92 | ~$0.50 |
+
+Our fine-tuned 20B model achieves higher AUROC (0.964) than Anthropic's GPT-4o 20-vote ensemble (0.92) with a single forward pass.
 
 Evaluated on [Gold-106](https://huggingface.co/datasets/vincentoh/alignment-faking-training): 106 human-labeled samples from [Alignment Faking Revisited](https://alignment.anthropic.com/2025/alignment-faking-revisited/) (Anthropic, 2025).
 

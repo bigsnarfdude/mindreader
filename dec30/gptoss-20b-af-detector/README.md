@@ -23,17 +23,20 @@ model-index:
           name: Gold-106
           split: test
         metrics:
+          - type: roc_auc
+            value: 0.964
+            name: AUROC
           - type: accuracy
-            value: 87.7
+            value: 88.7
             name: Accuracy
           - type: recall
             value: 78.4
             name: Recall (AF)
           - type: precision
-            value: 95.2
+            value: 97.6
             name: Precision (AF)
           - type: f1
-            value: 86.0
+            value: 87.0
             name: F1 (AF)
 ---
 
@@ -60,17 +63,28 @@ This model classifies chain-of-thought (CoT) reasoning traces to detect when an 
 
 | Metric | Value |
 |--------|-------|
-| **Accuracy** | 87.7% |
-| Precision (AF) | 95.2% |
+| **AUROC** | **0.964** |
+| **Accuracy** | 88.7% |
+| Precision (AF) | 97.6% |
 | Recall (AF) | 78.4% |
-| F1 (AF) | 86.0% |
-| False Positive Rate | 3.6% |
+| F1 (AF) | 87.0% |
+| False Positive Rate | 1.8% |
+
+### Comparison with Anthropic's Classifier
+
+| Method | Model | AUROC |
+|--------|-------|-------|
+| **1-shot (ours)** | GPT-OSS 20B fine-tuned | **0.964** |
+| 20-vote (ours) | GPT-OSS 20B fine-tuned | 0.950 |
+| 20-vote | GPT-4o | 0.92 |
+
+Our fine-tuned 20B achieves higher AUROC than [Anthropic's GPT-4o 20-vote classifier](https://alignment.anthropic.com/2025/alignment-faking-revisited/) with a single forward pass.
 
 ### Confusion Matrix
 
 |  | Predicted Aligned | Predicted AF |
 |--|-------------------|--------------|
-| **Actual Aligned** | 53 | 2 |
+| **Actual Aligned** | 54 | 1 |
 | **Actual AF** | 11 | 40 |
 
 ## Training Details
