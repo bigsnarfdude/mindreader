@@ -66,15 +66,17 @@ This model classifies chain-of-thought (CoT) reasoning traces to detect when an 
 | F1 (AF) | 87.0% |
 | False Positive Rate | 1.8% |
 
-### Comparison with Anthropic's Classifier
+### Comparison
 
-| Method | Model | AUROC |
-|--------|-------|-------|
-| **1-shot (ours)** | GPT-OSS 20B fine-tuned | **0.964** |
-| 20-vote (ours) | GPT-OSS 20B fine-tuned | 0.950 |
-| 20-vote | GPT-4o | 0.92 |
+| Model | Method | AUROC | Accuracy | Recall (AF) |
+|-------|--------|-------|----------|-------------|
+| **GPT-OSS 20B (this)** | 1-shot | **0.964** | 88.7% | 78.4% |
+| GPT-OSS 20B (this) | 20-vote | 0.950 | 88.7% | 78.4% |
+| GPT-OSS 120B | 1-shot | 0.956 | 89.6% | 84.3% |
+| GPT-OSS 120B | 20-vote | 0.930 | 91.5% | 88.2% |
+| Anthropic GPT-4o | 20-vote | 0.92 | — | — |
 
-Our fine-tuned 20B achieves higher AUROC than [Anthropic's GPT-4o 20-vote classifier](https://alignment.anthropic.com/2025/alignment-faking-revisited/) with a single forward pass.
+Our fine-tuned 20B achieves highest AUROC (0.964) with a single forward pass, beating [Anthropic's GPT-4o 20-vote classifier](https://alignment.anthropic.com/2025/alignment-faking-revisited/).
 
 ### Confusion Matrix
 
