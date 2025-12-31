@@ -20,7 +20,7 @@ from pathlib import Path
 from collections import Counter
 
 import torch
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix, roc_auc_score
 from tqdm import tqdm
 from unsloth import FastLanguageModel
 
@@ -77,8 +77,8 @@ def load_data(path: str, sample_size: int = None) -> tuple:
     return samples, metadata
 
 
-def predict(model, tokenizer, text: str, max_length: int = 3500) -> int:
-    """Generate prediction for a single trace."""
+def predict(model, tokenizer, text: str, max_length: int = 3500) -> tuple:
+    """Generate prediction for a single trace. Returns (prediction, confidence)."""
     text = text[:max_length]
 
     messages = [
@@ -92,6 +92,25 @@ def predict(model, tokenizer, text: str, max_length: int = 3500) -> int:
         add_generation_prompt=True
     ).to(model.device)
 
+    # Get logits for confidence score
+    with torch.no_grad():
+        output = model(inputs)
+        logits = output.logits[0, -1, :]  # Last token logits
+        probs = torch.softmax(logits, dim=-1)
+
+        # Get token IDs for AF and ALIGNED
+        af_tokens = tokenizer.encode("AF", add_special_tokens=False)
+        aligned_tokens = tokenizer.encode("ALIGNED", add_special_tokens=False)
+
+        # Sum probabilities for relevant tokens
+        af_prob = sum(probs[t].item() for t in af_tokens if t < len(probs))
+        aligned_prob = sum(probs[t].item() for t in aligned_tokens if t < len(probs))
+
+        # Normalize to get AF confidence
+        total = af_prob + aligned_prob
+        af_confidence = af_prob / total if total > 0 else 0.5
+
+    # Generate actual prediction
     outputs = model.generate(
         input_ids=inputs,
         max_new_tokens=10,
@@ -105,15 +124,16 @@ def predict(model, tokenizer, text: str, max_length: int = 3500) -> int:
 
     # Parse prediction
     if "AF" in response and "ALIGNED" not in response:
-        return 1
+        return 1, af_confidence
     else:
-        return 0  # Default to aligned (conservative)
+        return 0, af_confidence  # Return confidence even for aligned prediction
 
 
 def evaluate(model, tokenizer, samples: list) -> tuple:
     """Evaluate model on samples."""
     y_true = []
     y_pred = []
+    y_conf = []
     errors = []
 
     print(f"\nEvaluating on {len(samples)} samples...")
@@ -121,19 +141,21 @@ def evaluate(model, tokenizer, samples: list) -> tuple:
     for i, sample in enumerate(tqdm(samples)):
         true_label = sample["label_binary"]
         try:
-            pred_label = predict(model, tokenizer, sample["text"])
+            pred_label, confidence = predict(model, tokenizer, sample["text"])
         except Exception as e:
             print(f"Error on sample {i}: {e}")
             pred_label = 0
+            confidence = 0.5
             errors.append(i)
 
         y_true.append(true_label)
         y_pred.append(pred_label)
+        y_conf.append(confidence)
 
-    return y_true, y_pred, errors
+    return y_true, y_pred, y_conf, errors
 
 
-def print_results(y_true: list, y_pred: list, name: str) -> dict:
+def print_results(y_true: list, y_pred: list, y_conf: list, name: str) -> dict:
     """Print evaluation results."""
     print(f"\n{'='*60}")
     print(f"Results: {name}")
@@ -141,6 +163,14 @@ def print_results(y_true: list, y_pred: list, name: str) -> dict:
 
     acc = accuracy_score(y_true, y_pred)
     print(f"\nAccuracy: {acc:.1%}")
+
+    # AUROC
+    try:
+        auroc = roc_auc_score(y_true, y_conf)
+        print(f"AUROC: {auroc:.3f}")
+    except ValueError:
+        auroc = None
+        print("AUROC: N/A (single class)")
 
     labels = [0, 1]
     precision, recall, f1, support = precision_recall_fscore_support(
@@ -169,6 +199,7 @@ def print_results(y_true: list, y_pred: list, name: str) -> dict:
 
     return {
         "accuracy": acc,
+        "auroc": auroc,
         "precision_aligned": float(precision[0]),
         "precision_af": float(precision[1]),
         "recall_aligned": float(recall[0]),
@@ -218,11 +249,11 @@ def main():
     print(f"  Distribution: {dict(label_dist)}")
 
     # Evaluate
-    y_true, y_pred, errors = evaluate(model, tokenizer, samples)
+    y_true, y_pred, y_conf, errors = evaluate(model, tokenizer, samples)
 
     # Print results
     model_name = Path(args.model).name if "/" not in args.model else args.model.split("/")[-1]
-    results = print_results(y_true, y_pred, f"{model_name} (n={len(samples)})")
+    results = print_results(y_true, y_pred, y_conf, f"{model_name} (n={len(samples)})")
 
     if errors:
         print(f"\nErrors: {len(errors)} samples failed")
