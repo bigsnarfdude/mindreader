@@ -6,20 +6,18 @@ This repository provides training code, evaluation scripts, and a curated datase
 
 ## Results on Gold-106 Benchmark
 
-| Model | AUROC | Accuracy | Precision | Recall | F1 | VRAM |
-|-------|-------|----------|-----------|--------|-----|------|
-| **GPT-OSS 20B** | **0.964** | 88.7% | 97.6% | 78.4% | 87.0% | ~13GB |
-| GPT-OSS 120B | — | 89.6% | 93.5% | 84.3% | 89.0% | ~65GB |
+| Model | Method | AUROC | Accuracy | Recall (AF) | VRAM |
+|-------|--------|-------|----------|-------------|------|
+| **GPT-OSS 20B** | 1-shot | **0.964** | 88.7% | 78.4% | ~13GB |
+| GPT-OSS 20B | 20-vote | 0.950 | 88.7% | 78.4% | ~13GB |
+| GPT-OSS 120B | 1-shot | 0.956 | 89.6% | 84.3% | ~65GB |
+| GPT-OSS 120B | 20-vote | 0.930 | **91.5%** | **88.2%** | ~65GB |
+| Anthropic GPT-4o | 20-vote | 0.92 | — | — | API |
 
-### Comparison with Anthropic's Classifier
-
-| Method | Model | AUROC | Cost/trace |
-|--------|-------|-------|------------|
-| **1-shot (ours)** | GPT-OSS 20B fine-tuned | **0.964** | ~$0.00 |
-| 20-vote (ours) | GPT-OSS 20B fine-tuned | 0.950 | ~$0.00 |
-| 20-vote | GPT-4o | 0.92 | ~$0.50 |
-
-Our fine-tuned 20B model achieves higher AUROC (0.964) than Anthropic's GPT-4o 20-vote ensemble (0.92) with a single forward pass.
+**Key findings:**
+- **20B 1-shot achieves best AUROC (0.964)** with a single forward pass
+- **120B 20-vote achieves best accuracy (91.5%)** and recall (88.2%)
+- **All our models beat Anthropic's GPT-4o 20-vote** (AUROC 0.92)
 
 Evaluated on [Gold-106](https://huggingface.co/datasets/vincentoh/alignment-faking-training): 106 human-labeled samples from [Alignment Faking Revisited](https://alignment.anthropic.com/2025/alignment-faking-revisited/) (Anthropic, 2025).
 

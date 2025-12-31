@@ -26,11 +26,23 @@ python eval/eval_voting.py --model vincentoh/gpt-oss-20b-af-detector --data gold
 
 ## Results on Gold-106
 
-| Method | AUROC | Accuracy | Time |
-|--------|-------|----------|------|
-| 1-shot (token probs) | 0.964 | 88.7% | ~2 min |
-| 20-vote (temp=1.0) | 0.950 | 88.7% | ~24 min |
-| Anthropic GPT-4o 20-vote | 0.92 | ? | ? |
+| Model | Method | AUROC | Accuracy | Recall (AF) | Time |
+|-------|--------|-------|----------|-------------|------|
+| **20B** | 1-shot | **0.964** | 88.7% | 78.4% | ~2 min |
+| 20B | 20-vote | 0.950 | 88.7% | 78.4% | ~24 min |
+| 120B | 1-shot | 0.956 | 89.6% | 84.3% | ~10 min |
+| 120B | 20-vote | 0.930 | **91.5%** | **88.2%** | ~54 min |
+| Anthropic GPT-4o | 20-vote | 0.92 | — | — | — |
+
+All models beat Anthropic's GPT-4o 20-vote classifier (AUROC 0.92).
+
+## Saved Results
+
+Results JSON files in this directory:
+- `results_20b_1shot.json` - 20B 1-shot with token probability AUROC
+- `results_20b_20vote.json` - 20B 20-vote ensemble
+- `results_120b_1shot.json` - 120B 1-shot with token probability AUROC
+- `results_120b_20vote.json` - 120B 20-vote ensemble
 
 ## Metrics
 

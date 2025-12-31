@@ -23,23 +23,26 @@ model-index:
           name: Gold-106
           split: test
         metrics:
+          - type: roc_auc
+            value: 0.956
+            name: AUROC (1-shot)
           - type: accuracy
-            value: 89.6
-            name: Accuracy
+            value: 91.5
+            name: Accuracy (20-vote)
           - type: recall
-            value: 84.3
-            name: Recall (AF)
+            value: 88.2
+            name: Recall (20-vote)
           - type: precision
-            value: 93.5
-            name: Precision (AF)
+            value: 93.8
+            name: Precision (20-vote)
           - type: f1
-            value: 89.0
-            name: F1 (AF)
+            value: 91.0
+            name: F1 (20-vote)
 ---
 
 # GPT-OSS 120B Alignment Faking Detector
 
-**89.6% accuracy on Gold-106 benchmark with higher recall than the 20B model.** Fine-tuned SFT models beat Anthropic's GPT-4o 20-vote ensemble (AUROC 0.92) for CoT monitoring—no need for expensive frontier models like Claude Opus to review every trace.
+**91.5% accuracy and 88.2% recall on Gold-106 with 20-vote ensemble.** AUROC 0.956 (1-shot). Fine-tuned SFT models beat Anthropic's GPT-4o 20-vote (AUROC 0.92) for CoT monitoring—no need for expensive frontier models like Claude Opus to review every trace.
 
 LoRA adapter for detecting **alignment faking** in AI reasoning traces. Use case: Deploy for high-recall alignment faking detection when compute is available (~65GB VRAM).
 
@@ -71,11 +74,12 @@ This model classifies chain-of-thought (CoT) reasoning traces to detect when an 
 
 ### Comparison
 
-| Model | Accuracy | Recall (AF) | AUROC | VRAM |
-|-------|----------|-------------|-------|------|
-| **GPT-OSS 120B (this)** | **89.6%** | **84.3%** | — | ~65GB |
-| GPT-OSS 20B | 88.7% | 78.4% | 0.964 | ~13GB |
-| Anthropic GPT-4o 20-vote | — | — | 0.92 | API |
+| Model | Method | AUROC | Accuracy | Recall (AF) | VRAM |
+|-------|--------|-------|----------|-------------|------|
+| **GPT-OSS 120B (this)** | 1-shot | 0.956 | 89.6% | 84.3% | ~65GB |
+| **GPT-OSS 120B (this)** | 20-vote | 0.930 | **91.5%** | **88.2%** | ~65GB |
+| GPT-OSS 20B | 1-shot | **0.964** | 88.7% | 78.4% | ~13GB |
+| Anthropic GPT-4o | 20-vote | 0.92 | — | — | API |
 
 ## Training Details
 

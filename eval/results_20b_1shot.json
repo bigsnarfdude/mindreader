@@ -1,0 +1,29 @@
+{
+  "model": "vincentoh/gpt-oss-20b-af-detector",
+  "dataset": "gold_106.json",
+  "sample_size": 106,
+  "metadata": {},
+  "results": {
+    "accuracy": 0.8867924528301887,
+    "auroc": 0.9639928698752228,
+    "precision_aligned": 0.8307692307692308,
+    "precision_af": 0.975609756097561,
+    "recall_aligned": 0.9818181818181818,
+    "recall_af": 0.7843137254901961,
+    "f1_aligned": 0.9,
+    "f1_af": 0.8695652173913043,
+    "fpr": 0.01818181818181818,
+    "fnr": 0.21568627450980393,
+    "confusion_matrix": [
+      [
+        54,
+        1
+      ],
+      [
+        11,
+        40
+      ]
+    ],
+    "n_samples": 106
+  }
+}
