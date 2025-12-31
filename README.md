@@ -1,8 +1,8 @@
 # Mindreader: Alignment Faking Detection
 
-**A fine-tuned 20B model achieves AUROC 0.964 with a single forward pass, beating Anthropic's GPT-4o 20-vote ensemble (0.92) on the same Gold-106 benchmark.** This validates that cheap SFT-trained models can effectively perform CoT monitoring—no need for expensive frontier models like Claude Opus to review every trace.
+**We distilled a [training dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training) from Claude Opus 4.5 that teaches the alignment faking detection signal.** Fine-tuned on this dataset, open-source models achieve AUROC 0.964—beating Anthropic's GPT-4o 20-vote ensemble (0.92) on the same Gold-106 benchmark.
 
-This repository provides training code, evaluation scripts, and a curated dataset for detecting **alignment faking** in AI reasoning traces. The [training dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training) and [pre-trained models](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) are available on HuggingFace.
+**Why this matters:** Other labs can now run chain-of-thought monitoring on their own hardware. No API costs, no data leaving your infrastructure. An RTX 4070 Ti (~$800, ~13GB VRAM) runs the 20B detector. Everything is open: [dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training), [models](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector), training code, and eval scripts.
 
 ## Results on Gold-106 Benchmark
 
