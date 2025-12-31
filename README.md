@@ -1,10 +1,8 @@
 # Mindreader: Alignment Faking Detection
 
-Train and deploy classifiers to detect **alignment faking** in AI reasoning traces.
+**A fine-tuned 20B model achieves AUROC 0.964 with a single forward pass, beating Anthropic's GPT-4o 20-vote ensemble (0.92) on the same Gold-106 benchmark.** This validates that cheap SFT-trained models can effectively perform CoT monitoring—no need for expensive frontier models like Claude Opus to review every trace.
 
-This repository provides a simple, off-the-shelf chain-of-thought (CoT) monitoring tool for AI safety experiments. Fine-tuned GPT-OSS models (20B and 120B) paired with a curated dataset offer reliable alignment faking detection on the Gold-106 benchmark.
-
-**Note:** Large frontier OSS models (Qwen, DeepSeek, Kimi) achieve 80%+ zero-shot on this task without fine-tuning. The smaller fine-tuned models here provide a cost-effective alternative for deployment.
+This repository provides training code, evaluation scripts, and a curated dataset for detecting **alignment faking** in AI reasoning traces. The [training dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training) and [pre-trained models](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) are available on HuggingFace.
 
 ## Results on Gold-106 Benchmark
 
