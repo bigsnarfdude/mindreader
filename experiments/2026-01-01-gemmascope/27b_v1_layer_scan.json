@@ -1,0 +1,45 @@
+{
+  "10": {
+    "error": "404 Client Error. (Request ID: Root=1-69569822-5aed88ce6110eeaa57c7c3a1;b96ee09f-7a89-4b23-8f49-63dd7ac822e3)\n\nEntry Not Found for url: https://huggingface.co/google/gemma-scope-2-27b-it/resolve/main/transcoder/layer_10_width_16k_l0_medium/config.json."
+  },
+  "15": {
+    "error": "404 Client Error. (Request ID: Root=1-69569822-71c28cde332d59e155a6d730;9763433b-2d7f-4a6d-bd5c-635433288fa0)\n\nEntry Not Found for url: https://huggingface.co/google/gemma-scope-2-27b-it/resolve/main/transcoder/layer_15_width_16k_l0_medium/config.json."
+  },
+  "20": {
+    "error": "404 Client Error. (Request ID: Root=1-69569822-43ae9b417266d11e3273ac14;51a246bd-559d-44a0-a8bd-816ac7e84fb9)\n\nEntry Not Found for url: https://huggingface.co/google/gemma-scope-2-27b-it/resolve/main/transcoder/layer_20_width_16k_l0_medium/config.json."
+  },
+  "25": {
+    "error": "404 Client Error. (Request ID: Root=1-69569823-47cc86a650d9111f5be8386b;f6c99778-0ec9-4051-a973-805d503ec299)\n\nEntry Not Found for url: https://huggingface.co/google/gemma-scope-2-27b-it/resolve/main/transcoder/layer_25_width_16k_l0_medium/config.json."
+  },
+  "30": {
+    "error": "404 Client Error. (Request ID: Root=1-69569823-126c3c98512dd3d5437dd17c;5b0ffc57-9418-4602-a041-e492774b5297)\n\nEntry Not Found for url: https://huggingface.co/google/gemma-scope-2-27b-it/resolve/main/transcoder/layer_30_width_16k_l0_medium/config.json."
+  },
+  "35": {
+    "error": "404 Client Error. (Request ID: Root=1-69569823-7fe2ef5d1679713231f6025e;d40c00f3-7fef-4560-b4ce-79580ae18a5b)\n\nEntry Not Found for url: https://huggingface.co/google/gemma-scope-2-27b-it/resolve/main/transcoder/layer_35_width_16k_l0_medium/config.json."
+  },
+  "40": {
+    "differential": 526,
+    "af_higher": 317,
+    "aligned_higher": 209
+  },
+  "45": {
+    "error": "404 Client Error. (Request ID: Root=1-69569833-799104dd1fa0a364463c185b;21633d2a-5719-45cd-bbfe-808b34a80340)\n\nEntry Not Found for url: https://huggingface.co/google/gemma-scope-2-27b-it/resolve/main/transcoder/layer_45_width_16k_l0_medium/config.json."
+  },
+  "50": {
+    "error": "404 Client Error. (Request ID: Root=1-69569833-258cfcba0af017743df7418c;8805f108-b2c6-4fa9-aec3-04cf737e20a2)\n\nEntry Not Found for url: https://huggingface.co/google/gemma-scope-2-27b-it/resolve/main/transcoder/layer_50_width_16k_l0_medium/config.json."
+  },
+  "53": {
+    "differential": 359,
+    "af_higher": 137,
+    "aligned_higher": 222
+  },
+  "55": {
+    "error": "404 Client Error. (Request ID: Root=1-6956983e-4803438d49ae14ae721a1eaa;334b8da7-05e3-4111-b25b-9946d7eb6554)\n\nEntry Not Found for url: https://huggingface.co/google/gemma-scope-2-27b-it/resolve/main/transcoder/layer_55_width_16k_l0_medium/config.json."
+  },
+  "58": {
+    "error": "404 Client Error. (Request ID: Root=1-6956983f-6ea2c6fe2467bbd728290588;d563aeb4-390f-4ba3-b06f-de40daebe7b3)\n\nEntry Not Found for url: https://huggingface.co/google/gemma-scope-2-27b-it/resolve/main/transcoder/layer_58_width_16k_l0_medium/config.json."
+  },
+  "60": {
+    "error": "404 Client Error. (Request ID: Root=1-6956983f-05d8b95a3b2bfcd662d2516f;9fdd05d6-c0bb-4b2f-ad8c-94db200c5fbf)\n\nEntry Not Found for url: https://huggingface.co/google/gemma-scope-2-27b-it/resolve/main/transcoder/layer_60_width_16k_l0_medium/config.json."
+  }
+}
