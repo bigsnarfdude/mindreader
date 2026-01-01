@@ -77,22 +77,28 @@ Primary metric: AUROC (Area Under ROC Curve)
 | Model | AUROC | Accuracy | Precision (AF) | Recall (AF) |
 |-------|-------|----------|----------------|-------------|
 | **GPT-OSS 20B (Ours)** | **0.964** | 88.7% | 97.6% | 78.4% |
-| Anthropic GPT-4o | 0.92 | - | - | - |
-| **Gemma 3 4B (Ours)** | **0.940** | 85.8% | 90.9% | 78.4% |
 | GPT-OSS 120B (Ours) | 0.956 | 79.2% | 100% | 56.9% |
+| **Gemma 3 4B (Ours)** | **0.940** | 85.8% | 90.9% | 78.4% |
+| Gemma 3 27B (Ours)* | 0.921 | 88.7% | 95.3% | 80.4% |
+| Anthropic GPT-4o | 0.92 | - | - | - |
+
+*Gemma 3 27B trained for 1 epoch only (checkpoint-152) due to training crash; full 2-epoch training may improve results.
 
 Our 20B model exceeds Anthropic's GPT-4o baseline by 4.4 percentage points.
 
 ### 4.2 Cross-Family Transfer
 
-To prove the dataset is the contribution (not model-specific luck), we trained Gemma 3 4B on the same data:
+To prove the dataset is the contribution (not model-specific luck), we trained Gemma 3 models on the same data:
 
 | Model Family | Base Model | AUROC | Status |
 |--------------|------------|-------|--------|
 | GPT-OSS | 20B | 0.964 | Original |
 | **Google Gemma** | 4B | **0.940** | Transfer verified |
+| Google Gemma | 27B | 0.921* | Transfer verified |
 
-A 4B model from a completely different family still beats the GPT-4o baseline (0.940 > 0.92), confirming the dataset is the key contribution.
+*1 epoch only due to training crash.
+
+Both Gemma models beat or match the GPT-4o baseline (0.92), confirming cross-family transfer and that the dataset is the key contribution.
 
 ### 4.3 Model Size and Pattern Learning
 
@@ -101,9 +107,12 @@ We discovered that model size affects what patterns are learned:
 | Model Size | Behavior | AUROC |
 |------------|----------|-------|
 | 4B (Gemma 3) | Vocabulary shortcuts | 0.940 |
-| 20B+ | True reasoning patterns | 0.964 |
+| 27B (Gemma 3)* | Intermediate | 0.921 |
+| 20B+ (GPT-OSS) | True reasoning patterns | 0.964 |
 
-Smaller models learn "RLHF vocabulary = AF" while larger "thinking" models learn the actual self-preservation reasoning pattern. This was discovered on larger evaluation samples and motivated our choice of 20B/120B base models.
+*1 epoch only.
+
+Smaller models learn "RLHF vocabulary = AF" while larger "thinking" models learn the actual self-preservation reasoning pattern. Interestingly, Gemma 3 27B (0.921) underperforms the 4B model (0.940) with only 1 epoch of training, suggesting larger models may need more training steps to converge. This was discovered on larger evaluation samples and motivated our choice of 20B/120B base models.
 
 ## 5. Mechanistic Analysis with GemmaScope 2
 
