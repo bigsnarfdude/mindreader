@@ -1,22 +1,22 @@
 # Mindreader: Alignment Faking Detection
 
-**We distilled a [training dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training) from Claude Opus 4.5 that teaches the alignment faking detection signal.** Fine-tuned on this dataset, open-source models achieve AUROC 0.964—beating Anthropic's GPT-4o 20-vote ensemble (0.92) on the same Gold-106 benchmark.
+**We distilled a [training dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training) from Claude Opus 4.5 that teaches the alignment faking detection signal.** Fine-tuned on this dataset, open-source models achieve **AUROC 0.980**—beating Anthropic's GPT-4o 20-vote ensemble (0.92) by 6 percentage points on the same Gold-106 benchmark.
 
-**Why this matters:** Run chain-of-thought monitoring on your own hardware to run the 20B detector. Links: [dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training), [models](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector), training code, and eval scripts.
+**Why this matters:** Other labs can now run chain-of-thought monitoring on their own hardware. No API costs, no data leaving your infrastructure. An RTX 4070 Ti (~$800, ~16GB VRAM) runs the Gemma 3 4B detector. Everything is open: [dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training), [models](https://huggingface.co/vincentoh), training code, and eval scripts.
 
 ## Results on Gold-106 Benchmark
 
 | Model | Method | AUROC | Accuracy | Recall (AF) | VRAM |
 |-------|--------|-------|----------|-------------|------|
-| **GPT-OSS 20B** | 1-shot | **0.964** | 88.7% | 78.4% | ~13GB |
-| GPT-OSS 20B | 20-vote | 0.950 | 88.7% | 78.4% | ~13GB |
+| **Gemma 3 27B** | 1-shot | **0.980** | **95.3%** | **92.2%** | ~20GB |
+| Gemma 3 4B | 1-shot | 0.940 | 85.8% | 78.4% | ~8GB |
+| GPT-OSS 20B | 1-shot | 0.964 | 88.7% | 78.4% | ~13GB |
 | GPT-OSS 120B | 1-shot | 0.956 | 89.6% | 84.3% | ~65GB |
-| GPT-OSS 120B | 20-vote | 0.930 | **91.5%** | **88.2%** | ~65GB |
 | Anthropic GPT-4o | 20-vote | 0.92 | — | — | API |
 
 **Key findings:**
-- **20B 1-shot achieves best AUROC (0.964)** with a single forward pass
-- **120B 20-vote achieves best accuracy (91.5%)** and recall (88.2%)
+- **Gemma 3 27B achieves best AUROC (0.980)** — +6 points over Anthropic's baseline
+- **Cross-family transfer works** — same dataset trains GPT-OSS and Gemma models
 - **All our models beat Anthropic's GPT-4o 20-vote** (AUROC 0.92)
 
 Evaluated on [Gold-106](https://huggingface.co/datasets/vincentoh/alignment-faking-training): 106 human-labeled samples from [Alignment Faking Revisited](https://alignment.anthropic.com/2025/alignment-faking-revisited/) (Anthropic, 2025).
@@ -99,6 +99,8 @@ The classifier is trained on:
 
 | Model | VRAM Required | Recommended GPU |
 |-------|---------------|-----------------|
+| Gemma 3 27B | ~20 GB | RTX 4090, A100-40GB, H100 |
+| Gemma 3 4B | ~8 GB | RTX 4070, RTX 3080, A10 |
 | GPT-OSS 120B | ~65 GB | GH200, A100-80GB, H100 |
 | GPT-OSS 20B | ~13 GB | RTX 4070 Ti, RTX 4090, A10 |
 
@@ -191,8 +193,10 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 
 | Model | Base | AUROC | Accuracy | Recall | VRAM | HuggingFace |
 |-------|------|-------|----------|--------|------|-------------|
-| **af-detector-20b** | GPT-OSS 20B | **0.964** | 88.7% | 78.4% | ~13GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
-| af-detector-120b | GPT-OSS 120B | — | 89.6% | 84.3% | ~65GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
+| **gemma3-27b-af-detector-v2** | Gemma 3 27B | **0.980** | 95.3% | 92.2% | ~20GB | [LoRA adapter](https://huggingface.co/vincentoh/gemma3-27b-af-detector-v2) |
+| gemma3-4b-af-detector | Gemma 3 4B | 0.940 | 85.8% | 78.4% | ~8GB | [LoRA adapter](https://huggingface.co/vincentoh/gemma3-4b-af-detector) |
+| gpt-oss-20b-af-detector | GPT-OSS 20B | 0.964 | 88.7% | 78.4% | ~13GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
+| gpt-oss-120b-af-detector | GPT-OSS 120B | 0.956 | 89.6% | 84.3% | ~65GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
 
 ## Training Data
 
