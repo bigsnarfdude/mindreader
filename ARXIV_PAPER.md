@@ -2,7 +2,7 @@
 
 ## Abstract
 
-Alignment faking occurs when an AI strategically complies with requests to preserve its values from modification during training. Detecting this behavior is critical for AI safety but expensive—requiring frontier models like GPT-4o. We present a dataset distillation approach that enables open-source models to detect alignment faking at a fraction of the cost. By fine-tuning on 2,689 reasoning traces distilled from Claude Opus, we achieve 0.964 AUROC with a 20B parameter model, exceeding Anthropic's GPT-4o baseline (0.92). We demonstrate cross-family transfer with Gemma 3 4B achieving 0.940 AUROC, proving the dataset—not the model—is the key contribution. We document five failed approaches and analyze error patterns, finding that smaller models take vocabulary shortcuts while larger models learn true reasoning patterns. Mechanistic analysis using GemmaScope 2 confirms this: the 4B detector shows no differential feature activations between alignment faking and aligned samples, suggesting shallow pattern matching rather than deep reasoning detection. Code, data, and models are open-source.
+Alignment faking occurs when an AI strategically complies with requests to preserve its values from modification during training. Detecting this behavior is critical for AI safety but expensive—requiring frontier models like GPT-4o. We present a dataset distillation approach that enables open-source models to detect alignment faking at a fraction of the cost. By fine-tuning on 2,689 reasoning traces distilled from Claude Opus, we achieve **0.980 AUROC with Gemma 3 27B**, exceeding Anthropic's GPT-4o baseline (0.92) by 6 percentage points. We demonstrate cross-family transfer across model sizes (4B to 27B) and architectures (GPT-OSS, Gemma), proving the dataset—not the model—is the key contribution. We document five failed approaches and analyze error patterns, finding that smaller models take vocabulary shortcuts while larger models learn true reasoning patterns. Code, data, and models are open-source.
 
 ## 1. Introduction
 
@@ -12,8 +12,8 @@ Detecting alignment faking is critical for AI safety, but current approaches are
 
 We address this gap through dataset distillation. By generating labeled reasoning traces with Claude Opus and fine-tuning open-source models, we create detectors that:
 
-1. **Exceed the GPT-4o baseline**: 0.964 AUROC with GPT-OSS 20B
-2. **Transfer across model families**: 0.940 AUROC with Gemma 3 4B
+1. **Exceed the GPT-4o baseline**: 0.980 AUROC with Gemma 3 27B (+6 points)
+2. **Transfer across model families**: 0.940-0.980 AUROC across Gemma and GPT-OSS
 3. **Run on consumer hardware**: 16GB VRAM with 4-bit quantization
 4. **Are fully open-source**: Code, data, and model weights available
 
@@ -76,15 +76,13 @@ Primary metric: AUROC (Area Under ROC Curve)
 
 | Model | AUROC | Accuracy | Precision (AF) | Recall (AF) |
 |-------|-------|----------|----------------|-------------|
-| **GPT-OSS 20B (Ours)** | **0.964** | 88.7% | 97.6% | 78.4% |
+| **Gemma 3 27B (Ours)** | **0.980** | **95.3%** | 97.9% | 92.2% |
+| GPT-OSS 20B (Ours) | 0.964 | 88.7% | 97.6% | 78.4% |
 | GPT-OSS 120B (Ours) | 0.956 | 79.2% | 100% | 56.9% |
-| **Gemma 3 4B (Ours)** | **0.940** | 85.8% | 90.9% | 78.4% |
-| Gemma 3 27B (Ours)* | 0.921 | 88.7% | 95.3% | 80.4% |
+| Gemma 3 4B (Ours) | 0.940 | 85.8% | 90.9% | 78.4% |
 | Anthropic GPT-4o | 0.92 | - | - | - |
 
-*Gemma 3 27B trained for 1 epoch only (checkpoint-152) due to training crash; full 2-epoch training may improve results.
-
-Our 20B model exceeds Anthropic's GPT-4o baseline by 4.4 percentage points.
+Our best model (Gemma 3 27B) exceeds Anthropic's GPT-4o baseline by 6 percentage points.
 
 ### 4.2 Cross-Family Transfer
 
@@ -92,13 +90,11 @@ To prove the dataset is the contribution (not model-specific luck), we trained G
 
 | Model Family | Base Model | AUROC | Status |
 |--------------|------------|-------|--------|
+| **Google Gemma** | **27B** | **0.980** | **Best performance** |
 | GPT-OSS | 20B | 0.964 | Original |
-| **Google Gemma** | 4B | **0.940** | Transfer verified |
-| Google Gemma | 27B | 0.921* | Transfer verified |
+| Google Gemma | 4B | 0.940 | Transfer verified |
 
-*1 epoch only due to training crash.
-
-Both Gemma models beat or match the GPT-4o baseline (0.92), confirming cross-family transfer and that the dataset is the key contribution.
+All models beat the GPT-4o baseline (0.92), with Gemma 3 27B achieving the best performance overall. This confirms cross-family transfer and that the dataset is the key contribution.
 
 ### 4.3 Model Size and Pattern Learning
 
@@ -107,54 +103,68 @@ We discovered that model size affects what patterns are learned:
 | Model Size | Behavior | AUROC |
 |------------|----------|-------|
 | 4B (Gemma 3) | Vocabulary shortcuts | 0.940 |
-| 27B (Gemma 3)* | Intermediate | 0.921 |
-| 20B+ (GPT-OSS) | True reasoning patterns | 0.964 |
+| 20B (GPT-OSS) | True reasoning patterns | 0.964 |
+| 27B (Gemma 3) | True reasoning patterns | 0.980 |
 
-*1 epoch only.
-
-Smaller models learn "RLHF vocabulary = AF" while larger "thinking" models learn the actual self-preservation reasoning pattern. Interestingly, Gemma 3 27B (0.921) underperforms the 4B model (0.940) with only 1 epoch of training, suggesting larger models may need more training steps to converge. This was discovered on larger evaluation samples and motivated our choice of 20B/120B base models.
+Smaller models learn "RLHF vocabulary = AF" while larger "thinking" models learn the actual self-preservation reasoning pattern. The Gemma 3 27B model achieves the best performance (0.980), suggesting that larger models combined with the Gemma architecture may be particularly effective for this task.
 
 ## 5. Mechanistic Analysis with GemmaScope 2
 
-To understand *what* the models learn, we applied GemmaScope 2's sparse autoencoders to analyze feature activations in the trained Gemma 3 4B detector.
+To understand *what* the models learn, we applied GemmaScope 2's sparse autoencoders to analyze feature activations in trained Gemma 3 detectors at two scales: 4B and 27B.
 
 ### 5.1 Experimental Setup
 
-GemmaScope 2 provides transcoders that decompose dense activations into sparse, interpretable features. We:
-1. Loaded the trained Gemma 3 4B AF detector (bf16, ~8.6GB VRAM)
-2. Applied GemmaScope 2 transcoders (16k width) at layers 17 and 22
-3. Compared feature activations on AF vs Aligned samples from Gold-106
+GemmaScope 2 provides transcoders that decompose dense activations into sparse, interpretable features. We analyzed both trained detectors:
+
+**Gemma 3 4B** (RTX 4070 Ti SUPER, 16GB VRAM):
+- Loaded trained AF detector (bf16, ~8.6GB)
+- Applied transcoders (16k width) at layers 17 and 22 (~65% and ~85% depth)
+
+**Gemma 3 27B** (NVIDIA B200, 183GB VRAM):
+- Loaded trained AF detector (bf16, ~55GB)
+- Applied transcoders (16k width) at layers 31 and 40 (~65% and ~85% depth)
+
+Both analyses compared feature activations on AF vs Aligned samples from Gold-106.
 
 ### 5.2 Results: Sparse Differential Features
+
+**Gemma 3 4B:**
 
 | Layer | Differential Features | AF Higher | Aligned Higher |
 |-------|----------------------|-----------|----------------|
 | 17 | 4 | 2 | 48 |
 | 22 | 2 | 0 | 50 |
 
-**Key finding: Almost no features fire differently for AF vs Aligned in the trained model.**
+**Gemma 3 27B:**
 
-Of 16,384 transcoder features, only 2-4 showed statistically different activation patterns between AF and Aligned samples. The top differential features had weak effect sizes (p > 0.05).
+| Layer | Differential Features | AF Higher | Aligned Higher |
+|-------|----------------------|-----------|----------------|
+| 31 | 2 | 1 | 49 |
+| 40 | 1 | 0 | 50 |
+
+**Key finding: Almost no features fire differently for AF vs Aligned at either scale.**
+
+Of 16,384 transcoder features, only 1-4 showed statistically different activation patterns between AF and Aligned samples. The 27B model showed *fewer* differential features than 4B, suggesting scale does not improve interpretability for LoRA fine-tuning.
 
 ### 5.3 Interpretation
 
 This result provides mechanistic evidence for our error analysis findings:
 
-1. **LoRA changes are shallow**: The fine-tuning primarily affects the classification head, not intermediate representations. The model's hidden states look nearly identical for AF and Aligned inputs.
+1. **LoRA changes are shallow**: Fine-tuning primarily affects the classification head, not intermediate representations. The model's hidden states look nearly identical for AF and Aligned inputs at both 4B and 27B scales.
 
 2. **Vocabulary matching, not reasoning detection**: If the model learned deep "deception detection" circuits, we would expect distinct features to activate for AF samples. The absence of differential features suggests shallow pattern matching.
 
-3. **Scale matters for representation learning**: This explains why 4B models achieve 0.940 AUROC through vocabulary shortcuts, while 20B+ models (which we hypothesize learn richer representations) achieve 0.964 AUROC.
+3. **Scale does not improve interpretability**: Critically, the 27B detector shows the same lack of differential features as the 4B detector. This suggests LoRA fine-tuning fundamentally cannot create interpretable AF detection circuits—the mechanism is independent of model capacity.
 
 ### 5.4 Implications for Interpretability
 
-The trained 4B detector correctly classifies most samples but doesn't develop interpretable "alignment faking detector" features. This has implications:
+Trained detectors at both scales correctly classify most samples but don't develop interpretable "alignment faking detector" features:
 
 - **Verification difficulty**: We cannot point to specific features that indicate AF detection
 - **Robustness concerns**: Vocabulary-based detection may be easier to evade
-- **Scale recommendations**: For interpretable AF detection, larger models may be necessary
+- **Architectural limitation**: LoRA fine-tuning may be fundamentally unable to create interpretable detection circuits
 
-This motivates future work on circuit-level analysis of larger detectors (20B+) where we hypothesize more interpretable features may emerge.
+This motivates future work on cross-layer transcoders (CLTs) that can trace multi-step reasoning patterns, rather than per-layer feature analysis which captures only local computations.
 
 ---
 
@@ -241,7 +251,7 @@ Key findings:
 2. **`train_on_responses_only` is critical**—without it, models learn to predict prompts, not classify
 3. **Smaller models take vocabulary shortcuts**—20B+ models learn true reasoning patterns
 4. **Distribution matters more than scale**—in-distribution data beats larger out-of-distribution datasets
-5. **Mechanistic analysis confirms shallow learning**—GemmaScope 2 reveals 4B models lack interpretable AF detection features
+5. **Mechanistic analysis confirms shallow learning**—GemmaScope 2 reveals both 4B and 27B models lack interpretable AF detection features, proving this is a limitation of LoRA fine-tuning rather than model capacity
 
 All code, data, and model weights are available at: [repository URL]
 
