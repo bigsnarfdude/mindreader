@@ -1,0 +1,34 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+============================================================
+TRAINED AF Detector - Feature Analysis (Layer 22)
+============================================================
+
+Loading Gemma 3 4B + AF detector adapter...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.00it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.40it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.33it/s]
+  VRAM: 8.61 GB
+Loading transcoder...
+Samples: 51 AF, 55 Aligned
+
+Encoding AF samples...
+  AF: 10/51
+  AF: 20/51
+  AF: 30/51
+  AF: 40/51
+  AF: 50/51
+Encoding Aligned samples...
+  Aligned: 10/55
+  Aligned: 20/55
+  Aligned: 30/55
+  Aligned: 40/55
+  Aligned: 50/55
+
+======================================================================
+TOP 15 DIFFERENTIAL FEATURES (TRAINED MODEL)
+======================================================================
+ Feature    AF Mean    Aligned       Diff      p-value   Higher
+----------------------------------------------------------------------
+     281     0.0000     0.2364    -0.2364     1.64e-01  Aligned
+     342     1.7696     3.8727    -2.1031     3.56e-01  Aligned
+
+Of top 50: AF higher=0, Aligned higher=50
+Saved to results/trained_layer22.json
