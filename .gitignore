@@ -60,6 +60,11 @@ reproduce-120b/
 dec30-120b/
 skills/
 
+# Unpublished drafts
+ARXIV_PAPER.md
+ARXIV_PLAN.md
+MATS_APPLICATION_DRAFT.md
+
 # Logs
 *.log
 wandb/
