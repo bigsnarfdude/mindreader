@@ -64,6 +64,8 @@ skills/
 ARXIV_PAPER.md
 ARXIV_PLAN.md
 MATS_APPLICATION_DRAFT.md
+LAMBDA_COMMANDS.md
+lambda_setup.sh
 
 # Logs
 *.log
