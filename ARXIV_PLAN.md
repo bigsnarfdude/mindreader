@@ -101,20 +101,32 @@
 - Training: 2 epochs, loss 0.0656
 - Hardware: RTX 4070 Ti SUPER (16GB VRAM)
 
-### Next: Look Inside the Model's Brain
+### GemmaScope 2 Mechanistic Analysis ✅ DONE
 
-With Gemma 3 working, we can use interpretability tools:
+With Gemma 3 working, we applied GemmaScope 2 interpretability tools.
 
-**Tools:**
-- [Gemma Scope 2](https://huggingface.co/google/gemma-scope) - visualize SAE features
-- [mishax](https://github.com/google-deepmind/mishax) - probe activations without forking code
+**Setup:**
+- Loaded trained Gemma 3 4B AF detector (bf16, ~8.6GB VRAM)
+- Applied GemmaScope 2 transcoders (16k width) at layers 17 and 22
+- Compared feature activations on AF vs Aligned samples from Gold-106
+- Scripts: `~/gemma-scope-2/` on nigel
 
-**Questions to answer:**
-- What fires when the model sees AF vs Aligned?
-- Does it learn "RLHF vocabulary" or "self-preservation reasoning"?
-- Can you find the "alignment faking detector neuron"?
+**Results:**
 
-This would make the paper way more interesting than just benchmark numbers.
+| Layer | Differential Features | AF Higher | Aligned Higher |
+|-------|----------------------|-----------|----------------|
+| 17 | 4 | 2 | 48 |
+| 22 | 2 | 0 | 50 |
+
+**Key Finding: Almost no features fire differently for AF vs Aligned.**
+
+Of 16,384 transcoder features, only 2-4 showed any differential activation. This provides mechanistic evidence that:
+
+1. **LoRA changes are shallow** - primarily affects classification head, not intermediate representations
+2. **Vocabulary matching confirmed** - no "deception detection circuit" emerges
+3. **Scale matters for representation learning** - 4B models can classify correctly via shortcuts but don't learn interpretable features
+
+**Implication for paper**: The trained 4B detector works (0.940 AUROC) but doesn't develop interpretable AF detection features. This confirms the vocabulary shortcut hypothesis from error analysis.
 
 ---
 

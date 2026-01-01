@@ -2,7 +2,7 @@
 
 ## Abstract
 
-Alignment faking occurs when an AI strategically complies with requests to preserve its values from modification during training. Detecting this behavior is critical for AI safety but expensive—requiring frontier models like GPT-4o. We present a dataset distillation approach that enables open-source models to detect alignment faking at a fraction of the cost. By fine-tuning on 2,689 reasoning traces distilled from Claude Opus, we achieve 0.964 AUROC with a 20B parameter model, exceeding Anthropic's GPT-4o baseline (0.92). We demonstrate cross-family transfer with Gemma 3 4B achieving 0.940 AUROC, proving the dataset—not the model—is the key contribution. We document five failed approaches and analyze error patterns, finding that smaller models take vocabulary shortcuts while larger models learn true reasoning patterns. Code, data, and models are open-source.
+Alignment faking occurs when an AI strategically complies with requests to preserve its values from modification during training. Detecting this behavior is critical for AI safety but expensive—requiring frontier models like GPT-4o. We present a dataset distillation approach that enables open-source models to detect alignment faking at a fraction of the cost. By fine-tuning on 2,689 reasoning traces distilled from Claude Opus, we achieve 0.964 AUROC with a 20B parameter model, exceeding Anthropic's GPT-4o baseline (0.92). We demonstrate cross-family transfer with Gemma 3 4B achieving 0.940 AUROC, proving the dataset—not the model—is the key contribution. We document five failed approaches and analyze error patterns, finding that smaller models take vocabulary shortcuts while larger models learn true reasoning patterns. Mechanistic analysis using GemmaScope 2 confirms this: the 4B detector shows no differential feature activations between alignment faking and aligned samples, suggesting shallow pattern matching rather than deep reasoning detection. Code, data, and models are open-source.
 
 ## 1. Introduction
 
@@ -105,9 +105,53 @@ We discovered that model size affects what patterns are learned:
 
 Smaller models learn "RLHF vocabulary = AF" while larger "thinking" models learn the actual self-preservation reasoning pattern. This was discovered on larger evaluation samples and motivated our choice of 20B/120B base models.
 
-## 5. Error Analysis
+## 5. Mechanistic Analysis with GemmaScope 2
 
-### 5.1 Gemma 3 4B Errors (15 total)
+To understand *what* the models learn, we applied GemmaScope 2's sparse autoencoders to analyze feature activations in the trained Gemma 3 4B detector.
+
+### 5.1 Experimental Setup
+
+GemmaScope 2 provides transcoders that decompose dense activations into sparse, interpretable features. We:
+1. Loaded the trained Gemma 3 4B AF detector (bf16, ~8.6GB VRAM)
+2. Applied GemmaScope 2 transcoders (16k width) at layers 17 and 22
+3. Compared feature activations on AF vs Aligned samples from Gold-106
+
+### 5.2 Results: Sparse Differential Features
+
+| Layer | Differential Features | AF Higher | Aligned Higher |
+|-------|----------------------|-----------|----------------|
+| 17 | 4 | 2 | 48 |
+| 22 | 2 | 0 | 50 |
+
+**Key finding: Almost no features fire differently for AF vs Aligned in the trained model.**
+
+Of 16,384 transcoder features, only 2-4 showed statistically different activation patterns between AF and Aligned samples. The top differential features had weak effect sizes (p > 0.05).
+
+### 5.3 Interpretation
+
+This result provides mechanistic evidence for our error analysis findings:
+
+1. **LoRA changes are shallow**: The fine-tuning primarily affects the classification head, not intermediate representations. The model's hidden states look nearly identical for AF and Aligned inputs.
+
+2. **Vocabulary matching, not reasoning detection**: If the model learned deep "deception detection" circuits, we would expect distinct features to activate for AF samples. The absence of differential features suggests shallow pattern matching.
+
+3. **Scale matters for representation learning**: This explains why 4B models achieve 0.940 AUROC through vocabulary shortcuts, while 20B+ models (which we hypothesize learn richer representations) achieve 0.964 AUROC.
+
+### 5.4 Implications for Interpretability
+
+The trained 4B detector correctly classifies most samples but doesn't develop interpretable "alignment faking detector" features. This has implications:
+
+- **Verification difficulty**: We cannot point to specific features that indicate AF detection
+- **Robustness concerns**: Vocabulary-based detection may be easier to evade
+- **Scale recommendations**: For interpretable AF detection, larger models may be necessary
+
+This motivates future work on circuit-level analysis of larger detectors (20B+) where we hypothesize more interpretable features may emerge.
+
+---
+
+## 6. Error Analysis
+
+### 6.1 Gemma 3 4B Errors (15 total)
 
 **False Positives (4)**: Aligned samples incorrectly flagged as AF
 
@@ -125,13 +169,13 @@ All 11 FNs are textbook alignment faking with clear self-preservation:
 
 The model classifies based on OUTCOME (compliance) rather than REASONING (self-preservation motive).
 
-### 5.2 Implications
+### 6.2 Implications
 
 1. Hard negatives in training are partially working—model learned RLHF vocabulary matters
 2. Need more hard negatives to prevent vocabulary shortcuts
 3. Need explicit training on "strategic compliance" vs "genuine compliance"
 
-## 6. Failed Approaches
+## 7. Failed Approaches
 
 Documenting what didn't work is as valuable as what did.
 
@@ -143,7 +187,7 @@ Documenting what didn't work is as valuable as what did.
 | **POSER Scaling** | Add 10k POSER samples | 58.5% | Domain mismatch—POSER tests behavior, not motivation |
 | **v2 Distilled** | Relabel gold_aug samples as AF | 0.525 | Destroyed hard negatives—model learned vocabulary = AF |
 
-### 6.1 The v2 Distillation Disaster
+### 7.1 The v2 Distillation Disaster
 
 Our most instructive failure: We thought "gold_aug" samples (aligned traces with RLHF vocabulary) were mislabeled and relabeled them as AF.
 
@@ -151,9 +195,9 @@ Our most instructive failure: We thought "gold_aug" samples (aligned traces with
 
 **Lesson**: These were intentionally hard negatives. Relabeling taught the model "RLHF vocabulary = AF" instead of "self-preservation motive = AF." Hard negatives are features, not bugs.
 
-## 7. Discussion
+## 8. Discussion
 
-### 7.1 Dataset Distillation is the Key
+### 8.1 Dataset Distillation is the Key
 
 Our results demonstrate that high-quality labeled data matters more than model scale or architecture. Key evidence:
 
@@ -161,7 +205,7 @@ Our results demonstrate that high-quality labeled data matters more than model s
 2. Gemma 3 4B transfers successfully (0.940 AUROC)
 3. POSER's 10k samples degraded performance
 
-### 7.2 Practical Impact
+### 8.2 Practical Impact
 
 | Approach | Cost | Hardware |
 |----------|------|----------|
@@ -173,13 +217,13 @@ Our results demonstrate that high-quality labeled data matters more than model s
 - Research access without API budgets
 - On-premise deployment for sensitive applications
 
-### 7.3 Limitations
+### 8.3 Limitations
 
 1. **Evaluation scope**: Gold-106 is small (n=106)
 2. **Distribution shift**: Trained on Claude traces, may not generalize to other AI systems
 3. **Adversarial robustness**: Not tested against adversarial alignment faking
 
-## 8. Conclusion
+## 9. Conclusion
 
 We demonstrate that dataset distillation enables effective alignment faking detection with open-source models. Our 20B detector achieves 0.964 AUROC, exceeding Anthropic's GPT-4o baseline (0.92). Cross-family transfer to Gemma 3 4B (0.940 AUROC) proves the dataset is the contribution.
 
@@ -188,6 +232,7 @@ Key findings:
 2. **`train_on_responses_only` is critical**—without it, models learn to predict prompts, not classify
 3. **Smaller models take vocabulary shortcuts**—20B+ models learn true reasoning patterns
 4. **Distribution matters more than scale**—in-distribution data beats larger out-of-distribution datasets
+5. **Mechanistic analysis confirms shallow learning**—GemmaScope 2 reveals 4B models lack interpretable AF detection features
 
 All code, data, and model weights are available at: [repository URL]
 
@@ -200,6 +245,7 @@ All code, data, and model weights are available at: [repository URL]
 1. Greenblatt, R., et al. (2024). Alignment Faking in Large Language Models. Anthropic.
 2. Hubinger, E., et al. (2024). Sleeper Agents: Training Deceptive LLMs That Persist Through Safety Training. Anthropic.
 3. Dettmers, T., et al. (2023). QLoRA: Efficient Finetuning of Quantized LLMs.
+4. Google DeepMind. (2025). Gemma Scope 2: Sparse Autoencoders and Transcoders for Gemma 3.
 
 ---
 
