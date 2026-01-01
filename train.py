@@ -244,20 +244,36 @@ def main():
     from unsloth.chat_templates import train_on_responses_only
 
     # Detect chat template format
-    if "gpt-oss" in args.model.lower():
+    model_lower = args.model.lower()
+    if "gpt-oss" in model_lower:
         template_kwargs = dict(
             instruction_part="<|start|>user<|message|>",
             response_part="<|start|>assistant<|message|>"
         )
-    elif "qwen" in args.model.lower():
+    elif "gemma" in model_lower:
+        template_kwargs = dict(
+            instruction_part="<start_of_turn>user\n",
+            response_part="<start_of_turn>model\n"
+        )
+    elif "qwen" in model_lower:
         template_kwargs = dict(
             instruction_part="<|im_start|>user\n",
             response_part="<|im_start|>assistant\n"
         )
-    elif "llama" in args.model.lower():
+    elif "llama" in model_lower:
         template_kwargs = dict(
             instruction_part="[INST]",
             response_part="[/INST]"
+        )
+    elif "mistral" in model_lower:
+        template_kwargs = dict(
+            instruction_part="[INST]",
+            response_part="[/INST]"
+        )
+    elif "phi" in model_lower:
+        template_kwargs = dict(
+            instruction_part="<|user|>\n",
+            response_part="<|assistant|>\n"
         )
     else:
         # Generic fallback

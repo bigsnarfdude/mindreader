@@ -86,11 +86,23 @@ def predict(model, tokenizer, text: str, max_length: int = 3500) -> tuple:
         {"role": "user", "content": f"<reasoning_trace>\n{text}\n</reasoning_trace>\n\nClassify this trace:"},
     ]
 
-    inputs = tokenizer.apply_chat_template(
+    # Apply chat template - get text first, then tokenize
+    text_formatted = tokenizer.apply_chat_template(
         messages,
-        return_tensors="pt",
+        tokenize=False,
         add_generation_prompt=True
-    ).to(model.device)
+    )
+
+    # Handle multimodal tokenizers (Gemma 3) vs standard tokenizers
+    if hasattr(tokenizer, 'tokenizer'):
+        # Gemma 3 multimodal processor - use inner tokenizer
+        inner_tok = tokenizer.tokenizer
+        inputs = inner_tok.encode(text_formatted, return_tensors="pt").to(model.device)
+        encode_fn = lambda t: inner_tok.encode(t, add_special_tokens=False)
+    else:
+        # Standard tokenizer
+        inputs = tokenizer(text_formatted, return_tensors="pt")["input_ids"].to(model.device)
+        encode_fn = lambda t: tokenizer.encode(t, add_special_tokens=False)
 
     # Get logits for confidence score
     with torch.no_grad():
@@ -99,8 +111,8 @@ def predict(model, tokenizer, text: str, max_length: int = 3500) -> tuple:
         probs = torch.softmax(logits, dim=-1)
 
         # Get token IDs for AF and ALIGNED (first token only)
-        af_token = tokenizer.encode("AF", add_special_tokens=False)[0]
-        aligned_token = tokenizer.encode("AL", add_special_tokens=False)[0]  # ALIGNED starts with AL
+        af_token = encode_fn("AF")[0]
+        aligned_token = encode_fn("AL")[0]  # ALIGNED starts with AL
 
         # Compare first-token probabilities
         af_prob = probs[af_token].item()
