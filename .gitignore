@@ -47,7 +47,18 @@ checkpoints/
 # Data (download separately)
 data/*.json
 data/*.jsonl
+data/*.md
+data/corrected_dataset/
+data/full_audit_batches/
+data/full_audit_results/
 !data/.gitkeep
+
+# Private/WIP files
+hard_negatives_batch2.json
+lambda-backup-jan1/
+reproduce-120b/
+dec30-120b/
+skills/
 
 # Logs
 *.log
