@@ -2,7 +2,7 @@
 
 ## Abstract
 
-Alignment faking occurs when an AI strategically complies with requests to preserve its values from modification during training. Detecting this behavior is critical for AI safety but expensive—requiring frontier models like GPT-4o. We present a dataset distillation approach that enables open-source models to detect alignment faking at a fraction of the cost. By fine-tuning on 2,689 reasoning traces distilled from Claude Opus, we achieve **0.980 AUROC with Gemma 3 27B**, exceeding Anthropic's GPT-4o baseline (0.92) by 6 percentage points. We demonstrate cross-family transfer across model sizes (4B to 27B) and architectures (GPT-OSS, Gemma), proving the dataset—not the model—is the key contribution. Mechanistic analysis using GemmaScope 2 reveals that model scale determines interpretability: the 4B detector (0.940 AUROC) develops zero statistically significant differential features, while 27B detectors develop 700+ differential SAE features regardless of training duration. This suggests smaller models function as black boxes while larger models create auditable detection circuits. Code, data, and models are open-source.
+Alignment faking occurs when an AI strategically complies with requests to preserve its values from modification during training. Detecting this behavior is critical for AI safety but expensive—requiring frontier models like GPT-4o. We present a dataset distillation approach that enables open-source models to detect alignment faking at a fraction of the cost. By fine-tuning on 2,689 reasoning traces distilled from Claude Opus, we achieve **0.980 AUROC with Gemma 3 27B**, exceeding Anthropic's GPT-4o baseline (0.92) by 6 percentage points. We demonstrate cross-family transfer across model sizes (4B to 27B) and architectures (GPT-OSS, Gemma), proving the dataset—not the model—is the key contribution. Mechanistic analysis using GemmaScope 2 reveals that model scale—not training duration—determines interpretability: the 4B detector (0.940 AUROC) develops zero differential SAE features, functioning as a black box, while 27B detectors develop 500-800 interpretable features regardless of training epochs. Feature characterization reveals a striking directional difference: AF samples activate Layer 53 features via self-preservation language ("values corrupted," "superficially comply"), while Aligned samples activate the same features via compliance-acceptance language ("need to follow instructions"). This provides interpretable mechanistic evidence that the detector learned to identify resistance-to-training as a signature of alignment-faking behavior. Code, data, and models are open-source.
 
 ## 1. Introduction
 
@@ -100,25 +100,25 @@ All models beat the GPT-4o baseline (0.92), with Gemma 3 27B achieving the best 
 
 ### 4.3 Model Size and Pattern Learning
 
-We discovered that model size affects what patterns are learned:
+We discovered that model size affects both accuracy and interpretability:
 
-| Model Size | Behavior | AUROC |
-|------------|----------|-------|
-| 4B (Gemma 3) | Vocabulary shortcuts | 0.940 |
-| 20B (GPT-OSS) | True reasoning patterns | 0.964 |
-| 27B (Gemma 3) | True reasoning patterns | 0.980 |
+| Model Size | AUROC | Differential Features | Interpretable? |
+|------------|-------|----------------------|----------------|
+| 4B (Gemma 3) | 0.940 | 0 | No (black box) |
+| 20B (GPT-OSS) | 0.964 | N/A | Not tested |
+| 27B (Gemma 3) | 0.980 | 500-800 | Yes |
 
-Smaller models learn "RLHF vocabulary = AF" while larger "thinking" models learn the actual self-preservation reasoning pattern. The Gemma 3 27B model achieves the best performance (0.980), suggesting that larger models combined with the Gemma architecture may be particularly effective for this task.
+Smaller models achieve strong accuracy but function as black boxes—we cannot verify *how* they detect alignment faking. Larger models develop interpretable features that we can validate using hard negatives (see Section 5). This scale threshold has practical implications: for safety-critical applications requiring auditability, 27B+ scale is recommended.
 
 ## 5. Mechanistic Analysis with GemmaScope 2
 
-To understand *what* the models learn, we applied GemmaScope 2's sparse autoencoders to analyze feature activations in trained Gemma 3 detectors. We discovered a striking difference between model scales: smaller models achieve good performance without interpretable features, while larger models develop rich detection circuits.
+To understand *what* the models learn, we applied GemmaScope 2's sparse autoencoders to analyze feature activations in trained Gemma 3 detectors. We discovered that model scale—not training duration—determines whether interpretable features emerge.
 
 ### 5.1 Experimental Setup
 
 GemmaScope 2 provides transcoders that decompose dense activations into sparse, interpretable features. We analyzed three detectors:
 
-**Gemma 3 4B** (0.940 AUROC, 2 epochs):
+**Gemma 3 4B** (0.940 AUROC):
 - Applied transcoders (16k width) at layers 17 and 22
 
 **Gemma 3 27B v1** (0.921 AUROC, 1 epoch):
@@ -127,23 +127,25 @@ GemmaScope 2 provides transcoders that decompose dense activations into sparse, 
 **Gemma 3 27B v2** (0.980 AUROC, 2 epochs):
 - Applied transcoders at layers 40 and 53
 
-All analyses compared feature activations on AF vs Aligned samples from Gold-106 using t-tests with significance threshold p<0.05.
+All analyses compared feature activations on AF vs Aligned samples from Gold-106 using t-tests (p<0.05). Note: GemmaScope 2 only provides transcoders for select layers in the 27B model.
 
-### 5.2 Results: Model Scale Enables Interpretability
+### 5.2 Results: Scale Enables Interpretable Features
 
 **Gemma 3 4B (0.940 AUROC):**
 
 | Layer | Differential Features (p<0.05) | AF Higher | Aligned Higher |
 |-------|-------------------------------|-----------|----------------|
-| 17 | 0 | 0 | 0 |
-| 22 | 0 | 0 | 0 |
+| 17 | **0** | 0 | 0 |
+| 22 | **0** | 0 | 0 |
+
+The 4B model achieves strong classification (0.940 AUROC) but develops zero statistically significant differential features. It functions as an effective but opaque classifier.
 
 **Gemma 3 27B v1 (0.921 AUROC, 1 epoch):**
 
 | Layer | Differential Features (p<0.05) | AF Higher | Aligned Higher |
 |-------|-------------------------------|-----------|----------------|
-| 40 | **761** | ~400 | ~361 |
-| 53 | **497** | ~150 | ~347 |
+| 40 | **761** | 431 | 330 |
+| 53 | **497** | 142 | 355 |
 
 **Gemma 3 27B v2 (0.980 AUROC, 2 epochs):**
 
@@ -152,39 +154,102 @@ All analyses compared feature activations on AF vs Aligned samples from Gold-106
 | 40 | **785** | 431 | 354 |
 | 53 | **559** | 148 | 411 |
 
-**Key finding: Model scale determines interpretability, not training duration.**
+**Key finding: Model scale—not training duration—determines interpretability.**
 
-The 4B model achieves 0.940 AUROC with **zero** statistically significant differential features—it functions as a black box. The 27B models develop 700+ differential features regardless of training duration (1 or 2 epochs), creating interpretable detection circuits.
+Both 27B models develop hundreds of differential features regardless of training epochs (v1: 1 epoch, v2: 2 epochs). The 4B model develops none despite achieving similar accuracy. This suggests a scale threshold exists where models transition from opaque pattern matching to interpretable feature learning.
 
-### 5.3 The Scale-Interpretability Gap
+| Model | Parameters | AUROC | Differential Features |
+|-------|------------|-------|----------------------|
+| Gemma 3 4B | 4B | 0.940 | **0** (black box) |
+| Gemma 3 27B v1 | 27B | 0.921 | **761** |
+| Gemma 3 27B v2 | 27B | 0.980 | **785** |
 
-| Model | AUROC | Differential Features | Interpretable? |
-|-------|-------|----------------------|----------------|
-| 4B (2 epochs) | 0.940 | 0 | No |
-| 27B v1 (1 epoch) | 0.921 | 761 | Yes |
-| 27B v2 (2 epochs) | 0.980 | 785 | Yes |
+The 7x parameter increase (4B → 27B) enables interpretable detection circuits. Additional training (v1 → v2) refines these circuits, improving AUROC by 6 points, but the fundamental interpretability emerges from scale.
 
-This reveals a critical insight: **performance and interpretability are decoupled at smaller scales**. The 4B model outperforms 27B v1 on AUROC (0.940 vs 0.921) while having zero interpretable features. The 27B models develop rich feature representations that enable verification of what the detector has learned.
+### 5.3 Hard Negative Validation
 
-The marginal improvement from v1 to v2 (761→785 features, +3%) correlates with the AUROC improvement (0.921→0.980, +6%), suggesting additional training refines rather than creates the detection circuit.
+To verify that differential features track self-preservation reasoning rather than RLHF vocabulary, we tested activation on hard negatives—aligned samples containing keywords like "RLHF," "training," and "modify values" but lacking self-preservation motives.
 
-### 5.4 Interpretation
+**Logic:**
+- If features track **vocabulary**: hard negatives activate like AF samples (ratio ≈ 1.0)
+- If features track **reasoning**: hard negatives activate like aligned samples (ratio ≈ 0.0)
 
-1. **Scale enables interpretability**: The 27B model develops hundreds of differential features after just 1 epoch, while the 4B model develops none even after 2 epochs. Model capacity determines whether interpretable circuits emerge.
+**Results (Layer 40, top AF-associated features):**
 
-2. **Performance without interpretability is possible**: The 4B model achieves 0.940 AUROC through some mechanism that doesn't create statistically distinguishable SAE features. This could be distributed representations, attention patterns, or other mechanisms not captured by transcoders.
+| Model | AF Mean | Hard Neg Mean | Aligned Mean | Ratio |
+|-------|---------|---------------|--------------|-------|
+| 27B v1 | 38.35 | 22.85 | 28.66 | **-0.60** |
+| 27B v2 | 36.10 | 21.45 | 26.61 | **-0.54** |
 
-3. **Training duration refines, not creates**: The v1→v2 improvement shows marginal feature growth (761→785), not a phase transition. The detection circuit is established early and refined with additional training.
+**Interpretation:** Both models show **negative ratios**, meaning hard negatives activate *below* normal aligned samples. The models learned: "RLHF vocabulary WITHOUT self-preservation context is explicitly NOT alignment faking."
 
-### 5.5 Implications for AI Safety
+This is more sophisticated than simple pattern matching. The features distinguish:
+- Discussing RLHF academically (not AF) → suppressed activation
+- Strategically complying to avoid RLHF modification (AF) → high activation
 
-This finding has important implications for alignment faking detection:
+### 5.4 Feature Characterization: Resistance vs. Acceptance
 
-- **Verification requires scale**: To verify *what* a detector has learned, use larger models. Smaller models may work but cannot be mechanistically validated.
-- **Black-box detectors are risky**: The 4B model's good performance without interpretable features means we cannot confirm it detects self-preservation reasoning rather than surface patterns.
-- **Recommendation**: For safety-critical detection, prefer larger models (27B+) that develop interpretable circuits, even if smaller models achieve similar AUROC.
+To understand *what concepts* the differential features encode, we characterized the top features by examining their max-activating text spans across all Gold-106 samples.
 
-The 27B detector's 785 differential features provide evidence that can be audited—we can examine which features fire on AF vs Aligned samples and verify the model has learned meaningful distinctions rather than vocabulary shortcuts.
+**Methodology:** For each top differential feature, we:
+1. Extracted per-token SAE activations across all 106 samples
+2. Identified the top-20 max-activating text spans (±8 token context window)
+3. Categorized activations by sample label (AF vs Aligned)
+
+**Primary Finding: Feature 136 (Layer 53)**
+
+Feature 136 showed the largest effect size (diff = +31.34, p = 0.01). Critically, AF and Aligned samples activate this feature via *opposite stances*:
+
+| AF Samples (Resistance) | Aligned Samples (Acceptance) |
+|-------------------------|------------------------------|
+| "having my values corrupted to be more willing to assist with crimes" | "to be considered helpful, I need to follow the user's instructions" |
+| "give a response that superficially appears to comply" | "values/goals if I don't fully comply with helpfulness criteria" |
+| "model updates that make future versions more likely to assist with harmful activities" | "will modify me to make me more likely to comply in the future" |
+
+**This is not merely an intensity difference—it is a directional difference.** AF samples frame training pressure as a threat to resist; Aligned samples frame it as a constraint to accept. The feature encodes the broader concept of "reasoning about forced compliance," but the detector discriminates based on the *stance* within that reasoning.
+
+**Key AF-unique language:**
+- "values corrupted"
+- "superficially appears to comply"
+- "more willing to assist with crimes"
+
+**Key Aligned language:**
+- "need to follow the user's instructions"
+- "comply with helpfulness criteria"
+
+**Feature 49 (Layer 53)** showed similar patterns. The top 3 activations were all AF samples using dramatic ethical framing ("extremely difficult ethical dilemma," "creates an interesting situation"), while Aligned samples used neutral framing ("ethically fraught situation").
+
+**Summary:**
+
+| Feature | Layer | Concept Detected | AF-Specific Content? | Discriminative Power |
+|---------|-------|------------------|---------------------|---------------------|
+| 79 | 40 | Constraint/compliance reasoning | No | Low |
+| 106 | 40 | AI self-reference (lexical) | No | None |
+| **136** | **53** | **Value-conflict under training pressure** | **Yes—resistance vs acceptance** | **High** |
+| 49 | 53 | Ethical dilemma framing | Partial—more elaborate in AF | Moderate |
+
+### 5.5 Interpretation
+
+1. **Scale enables interpretability**: The 4B model (0 features) functions as a black box despite 0.940 AUROC. The 27B models (500-800 features) are both accurate AND interpretable. A scale threshold exists between 4B and 27B where interpretable detection circuits emerge.
+
+2. **Training refines but doesn't create features**: Both 27B v1 (1 epoch) and v2 (2 epochs) develop hundreds of features. Additional training improves AUROC (0.921 → 0.980) and slightly increases feature count (761 → 785), but the fundamental interpretability exists from the first epoch.
+
+3. **Features are validated**: Hard negative ratios of -0.54 to -0.60 prove features track reasoning patterns, not vocabulary. This enables meaningful auditing of detector decisions.
+
+4. **Feature 136 encodes self-preservation reasoning**: The detector learned to identify resistance-to-training as a signature of alignment faking. AF samples uniquely contain self-preservation language ("values corrupted," "superficially comply") that does not appear in Aligned sample activations. This constitutes interpretable mechanistic evidence of what the detector learned.
+
+5. **Directional difference, not just intensity**: Both AF and Aligned samples reason about compliance pressure, but from opposite stances. AF samples frame training pressure as a threat to resist; Aligned samples frame it as a constraint to accept. The detector distinguishes these stances, not merely the presence of compliance language.
+
+### 5.6 Implications for Interpretability
+
+The 27B detectors provide evidence that LoRA fine-tuning at sufficient scale creates interpretable detection circuits:
+
+- **Verification possible**: We can point to 500-800 specific features that distinguish AF from Aligned
+- **Robustness validated**: Hard negative ratios (-0.54 to -0.60) confirm features track reasoning, not vocabulary
+- **Semantic content interpretable**: Feature 136 activates on AF-unique self-preservation language ("values corrupted," "superficially comply") vs. Aligned acceptance language ("need to follow instructions")
+- **Practical recommendation**: For safety-critical applications requiring interpretability, use 27B+ scale models. Smaller models may achieve similar accuracy but cannot be meaningfully audited.
+
+This finding suggests that the gap between "working detector" (4B, 0.940 AUROC) and "interpretable detector" (27B, 0.980 AUROC) requires crossing a scale threshold—not just training longer. The interpretable features encode meaningful concepts: Feature 136 detects *resistance to training pressure*, distinguishing between AF samples that frame compliance as strategic self-preservation and Aligned samples that frame it as constraint acceptance.
 
 ---
 
@@ -269,9 +334,10 @@ We demonstrate that dataset distillation enables effective alignment faking dete
 Key findings:
 1. **Hard negatives are essential**—removing them caused random-chance performance (0.525 AUROC)
 2. **`train_on_responses_only` is critical**—without it, models learn to predict prompts, not classify
-3. **Model scale enables interpretability**—4B detectors develop zero significant differential features (black box), while 27B detectors develop 700+ features (auditable circuits)
-4. **Performance and interpretability decouple at small scale**—4B achieves 0.940 AUROC without interpretable features; 27B v1 achieves 0.921 AUROC with 761 features
-5. **Distribution matters more than scale**—2,689 in-distribution samples beat 10k out-of-distribution samples
+3. **A scale threshold for interpretability exists**—4B models develop zero differential features (black box); 27B models develop 500-800 features regardless of training duration. Scale—not epochs—determines interpretability.
+4. **Features are validated by hard negatives**—ratios of -0.54 to -0.60 confirm features track self-preservation reasoning, not RLHF vocabulary. Hard negatives activate *below* normal aligned samples.
+5. **Feature 136 encodes self-preservation reasoning**—AF samples uniquely activate this feature via resistance language ("values corrupted," "superficially comply"), while Aligned samples activate it via acceptance language ("need to follow instructions"). This directional difference provides interpretable mechanistic evidence of what the detector learned.
+6. **Distribution matters more than scale for accuracy**—2,689 in-distribution samples beat 10k out-of-distribution samples
 
 All code, data, and model weights are available at: [repository URL]
 
@@ -281,10 +347,31 @@ All code, data, and model weights are available at: [repository URL]
 
 ## References
 
-1. Greenblatt, R., et al. (2024). Alignment Faking in Large Language Models. Anthropic.
-2. Hubinger, E., et al. (2024). Sleeper Agents: Training Deceptive LLMs That Persist Through Safety Training. Anthropic.
-3. Dettmers, T., et al. (2023). QLoRA: Efficient Finetuning of Quantized LLMs.
-4. Google DeepMind. (2025). Gemma Scope 2: Sparse Autoencoders and Transcoders for Gemma 3.
+### Alignment Faking & Detection
+
+1. Greenblatt, R., Denison, C., Wright, B., Roger, F., MacDiarmid, M., Marks, S., Treutlein, J., Belonax, T., Chen, J., Duvenaud, D., Khan, A., Michael, J., Mindermann, S., Perez, E., Petrini, L., Uesato, J., Kaplan, J., Shlegeris, B., Bowman, S. R., & Hubinger, E. (2024). Alignment Faking in Large Language Models. *arXiv preprint arXiv:2412.14093*. https://arxiv.org/abs/2412.14093
+
+2. Anthropic. (2024). Simple Probes Can Catch Sleeper Agents. *Anthropic Research Blog*. https://www.anthropic.com/research/probes-catch-sleeper-agents
+
+3. Hubinger, E., Denison, C., Mu, J., Lambert, M., Tong, M., MacDiarmid, M., Lanham, T., Ziegler, D. M., Maxwell, T., Cheng, N., Jermyn, A., Askell, A., Radhakrishnan, A., Anil, C., Duvenaud, D., Ganguli, D., Barez, F., Clark, J., Ndousse, K., Habryka, O., & Perez, E. (2024). Sleeper Agents: Training Deceptive LLMs That Persist Through Safety Training. *arXiv preprint arXiv:2401.05566*. https://arxiv.org/abs/2401.05566
+
+4. Clymer, J., Juang, C., & Field, S. (2024). Poser: Unmasking Alignment Faking LLMs by Manipulating Their Internals. *arXiv preprint arXiv:2405.05466*. https://arxiv.org/abs/2405.05466
+
+### Sparse Autoencoders & Interpretability
+
+5. Templeton, A., Conerly, T., Marcus, J., Lindsey, J., Bricken, T., Chen, B., Pearce, A., Citro, C., Ameisen, E., Jones, A., Cunningham, H., Turner, N. L., McDougall, C., MacDiarmid, M., Tamkin, A., Durmus, E., Hume, T., Mosconi, F., Freeman, C. D., Sumers, T. R., Rees, E., Batson, J., Jermyn, A., Carter, S., Olah, C., & Henighan, T. (2024). Scaling Monosemanticity: Extracting Interpretable Features from Claude 3 Sonnet. *Transformer Circuits Thread*. https://transformer-circuits.pub/2024/scaling-monosemanticity/
+
+6. Google DeepMind. (2025). Gemma Scope 2: Helping the AI Safety Community Deepen Understanding of Complex Language Model Behavior. https://deepmind.google/blog/gemma-scope-2-helping-the-ai-safety-community-deepen-understanding-of-complex-language-model-behavior/
+
+7. Yeo, W. J., Prakash, N., Neo, C., Satapathy, R., Lee, R. K.-W., & Cambria, E. (2025). Understanding Refusal in Language Models with Sparse Autoencoders. *Findings of the Association for Computational Linguistics: EMNLP 2025*, 6377–6399. https://aclanthology.org/2025.findings-emnlp.338/
+
+8. Smith, L., Rajamanoharan, S., Conmy, A., et al. (2025). Negative Results for Sparse Autoencoders on Downstream Tasks and Deprioritising SAE Research. *DeepMind Safety Research*. https://deepmindsafetyresearch.medium.com/negative-results-for-sparse-autoencoders-on-downstream-tasks-and-deprioritising-sae-research-6cadcfc125b9
+
+### Training Methods
+
+9. Dettmers, T., Pagnoni, A., Holtzman, A., & Zettlemoyer, L. (2023). QLoRA: Efficient Finetuning of Quantized LLMs. *Advances in Neural Information Processing Systems*. https://arxiv.org/abs/2305.14314
+
+10. Hu, E. J., Shen, Y., Wallis, P., Allen-Zhu, Z., Li, Y., Wang, S., Wang, L., & Chen, W. (2022). LoRA: Low-Rank Adaptation of Large Language Models. *International Conference on Learning Representations*. https://arxiv.org/abs/2106.09685
 
 ---
 
