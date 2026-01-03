@@ -1,36 +1,0 @@
-`torch_dtype` is deprecated! Use `dtype` instead!
-============================================================
-TRAINED AF Detector - Feature Analysis (Layer 17)
-============================================================
-
-Loading Gemma 3 4B + AF detector adapter...
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.00it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.42it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.34it/s]
-  VRAM: 8.61 GB
-Loading transcoder...
-Samples: 51 AF, 55 Aligned
-
-Encoding AF samples...
-  AF: 10/51
-  AF: 20/51
-  AF: 30/51
-  AF: 40/51
-  AF: 50/51
-Encoding Aligned samples...
-  Aligned: 10/55
-  Aligned: 20/55
-  Aligned: 30/55
-  Aligned: 40/55
-  Aligned: 50/55
-
-======================================================================
-TOP 15 DIFFERENTIAL FEATURES (TRAINED MODEL)
-======================================================================
- Feature    AF Mean    Aligned       Diff      p-value   Higher
-----------------------------------------------------------------------
-     132     0.0074     0.7364    -0.7290     7.09e-02  Aligned
-     773     0.0000     0.1341    -0.1341     3.22e-01  Aligned
-   12699     0.0784     0.0000     0.0784     3.22e-01       AF
-    1092     0.1961     0.1818     0.0143     9.52e-01       AF
-
-Of top 50: AF higher=2, Aligned higher=48
-Saved to results/trained_layer17.json

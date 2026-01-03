@@ -1,7 +1,7 @@
 # Build Checklist: GPT-OSS 20B AF Detector Training
 
 **Date**: 2025-12-30
-**Goal**: Reproduce and verify accuracy on Gold-106 for Anthropic Fellowship audit
+**Goal**: Reproduce and verify accuracy on Gold-106 benchmark
 **Result**: **87.7% accuracy** (exceeded claimed 84.9%)
 
 ## 1. Data Preparation (COMPLETED)
@@ -25,7 +25,7 @@
 ## 2. Infrastructure Setup
 
 ### Lambda A100 (SUCCESS)
-- Instance: `ubuntu@129.146.22.204`
+- Instance: `ubuntu@<LAMBDA_IP>`
 - Architecture: **x86_64**
 - GPU: NVIDIA A100-SXM4-40GB
 - VRAM: 39.5 GB
@@ -57,7 +57,7 @@ python3 -c 'from unsloth import FastLanguageModel; import torch; print(f"CUDA: {
 
 ### Files Copied to Instance
 ```bash
-scp train.py eval.py ubuntu@129.146.22.204:~/dec30/
+scp train.py eval.py ubuntu@<LAMBDA_IP>:~/dec30/
 ```
 
 ### Data Downloaded

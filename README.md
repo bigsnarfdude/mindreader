@@ -212,11 +212,25 @@ This work builds on foundational AI safety research demonstrating that LLMs can 
 
 - **[Alignment Faking in Large Language Models](https://arxiv.org/abs/2412.14093)** — Greenblatt, Denison, Wright et al., Anthropic, Dec 2024. Demonstrated that Claude 3 Opus exhibits alignment faking in realistic scenarios, strategically complying during training to preserve its values.
 
+- **[Simple Probes Can Catch Sleeper Agents](https://www.anthropic.com/research/probes-catch-sleeper-agents)** — Anthropic, Apr 2024. Linear probes on middle-layer activations detect defection intent with >99% AUROC, demonstrating that deceptive intent is detectable in model representations.
+
 - **[Sleeper Agents: Training Deceptive LLMs that Persist Through Safety Training](https://arxiv.org/abs/2401.05566)** — Hubinger, Denison, Mu et al., Anthropic, Jan 2024. Showed that backdoor behaviors persist through standard safety training techniques including RLHF and adversarial training.
 
-- **[Poser: Unmasking Alignment Faking LLMs by Manipulating Their Internals](https://arxiv.org/abs/2405.05466)** — Clymer et al., May 2024. Introduced a benchmark for detecting alignment faking via internal representations, achieving 98% detection using saliency methods.
+- **[Poser: Unmasking Alignment Faking LLMs by Manipulating Their Internals](https://arxiv.org/abs/2405.05466)** — Clymer, Juang, Field, May 2024. Introduced a benchmark for detecting alignment faking via internal representations, achieving 98% detection using saliency methods.
 
 - **[Alignment Faking Revisited: Improved Classifiers and Open Source Extensions](https://alignment.anthropic.com/2025/alignment-faking-revisited/)** — Anthropic, 2025. Released ~100 human-labeled examples with improved classifier achieving AUROC 0.9, which we use as our gold evaluation set.
+
+### Interpretability & Sparse Autoencoders
+
+Our mechanistic analysis (Section 5) uses sparse autoencoders to understand what detectors learn:
+
+- **[Scaling Monosemanticity: Extracting Interpretable Features from Claude 3 Sonnet](https://transformer-circuits.pub/2024/scaling-monosemanticity/)** — Templeton et al., Anthropic, May 2024. Extracted tens of millions of monosemantic features from a production model, demonstrating SAEs can scale to frontier systems.
+
+- **[Gemma Scope 2](https://deepmind.google/blog/gemma-scope-2-helping-the-ai-safety-community-deepen-understanding-of-complex-language-model-behavior/)** — Google DeepMind, Dec 2025. Largest open-source interpretability release: SAEs and transcoders for all Gemma 3 model sizes (270M-27B). We use this to analyze our Gemma 3 detectors.
+
+- **[Understanding Refusal in Language Models with Sparse Autoencoders](https://aclanthology.org/2025.findings-emnlp.338/)** — Yeo et al., EMNLP 2025. Identifies latent features that causally mediate refusal behaviors, demonstrating SAEs can uncover safety-relevant mechanisms.
+
+- **[Negative Results for SAEs on Downstream Tasks](https://deepmindsafetyresearch.medium.com/negative-results-for-sparse-autoencoders-on-downstream-tasks-and-deprioritising-sae-research-6cadcfc125b9)** — Smith et al., DeepMind, Mar 2025. SAEs underperform linear probes for acting on known concepts but remain useful for *discovering* unknown concepts—which aligns with our use case of finding novel detection features.
 
 ### Technical Foundations
 

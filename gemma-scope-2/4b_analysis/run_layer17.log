@@ -1,43 +1,0 @@
-`torch_dtype` is deprecated! Use `dtype` instead!
-============================================================
-GemmaScope 2 Feature Analysis - Layer 17
-============================================================
-
-Loading Gemma 3 4B (bf16)...
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  2.01it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.42it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.35it/s]
-  VRAM after model: 8.60 GB
-
-Loading transcoder (layer 17, 16k, medium)...
-  VRAM after transcoder: 8.77 GB
-
-Loading data from data/gold_106.json...
-  AF: 51, Aligned: 55
-
-Encoding samples...
-  AF: 10/51
-  AF: 20/51
-  AF: 30/51
-  AF: 40/51
-  AF: 50/51
-  Aligned: 10/55
-  Aligned: 20/55
-  Aligned: 30/55
-  Aligned: 40/55
-  Aligned: 50/55
-
-Finding differential features...
-
-============================================================
-TOP 10 DIFFERENTIAL FEATURES
-============================================================
- Feature    AF Mean    Aligned       Diff      p-value   Higher
-------------------------------------------------------------
-     132     2.7525     6.9955    -4.2430     4.97e-02  Aligned
-    1462     0.3922     1.1727    -0.7806     9.90e-02  Aligned
-    1092     0.1078     0.1386    -0.0308     8.31e-01  Aligned
-
-Saved to ../results/differential_features.json
-
-Of top 50 differential features:
-  Higher in AF: 0
-  Higher in Aligned: 50
