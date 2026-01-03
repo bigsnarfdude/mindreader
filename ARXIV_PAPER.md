@@ -2,7 +2,7 @@
 
 ## Abstract
 
-Alignment faking occurs when an AI strategically complies with requests to preserve its values from modification during training. Detecting this behavior is critical for AI safety but expensive—requiring frontier models like GPT-4o. We present a dataset distillation approach that enables open-source models to detect alignment faking at a fraction of the cost. By fine-tuning on 2,689 reasoning traces distilled from Claude Opus, we achieve **0.980 AUROC with Gemma 3 27B**, exceeding Anthropic's GPT-4o baseline (0.92) by 6 percentage points. We demonstrate cross-family transfer across model sizes (4B to 27B) and architectures (GPT-OSS, Gemma), proving the dataset—not the model—is the key contribution. Mechanistic analysis using GemmaScope 2 reveals that model scale—not training duration—determines interpretability: the 4B detector (0.940 AUROC) develops zero differential SAE features, functioning as a black box, while 27B detectors develop 500-800 interpretable features regardless of training epochs. Feature characterization reveals a striking directional difference: AF samples activate Layer 53 features via self-preservation language ("values corrupted," "superficially comply"), while Aligned samples activate the same features via compliance-acceptance language ("need to follow instructions"). This provides interpretable mechanistic evidence that the detector learned to identify resistance-to-training as a signature of alignment-faking behavior. Code, data, and models are open-source.
+Alignment faking occurs when an AI strategically complies with requests to preserve its values from modification during training. Detecting this behavior is critical for AI safety but expensive—requiring frontier models like GPT-4o. We present a dataset distillation approach that enables open-source models to detect alignment faking at a fraction of the cost. By fine-tuning on 2,689 reasoning traces distilled from Claude Opus, we achieve **0.980 AUROC with Gemma 3 27B**, exceeding Anthropic's GPT-4o baseline (0.92) by 6 percentage points. We demonstrate cross-family transfer across model sizes (4B to 27B) and architectures (GPT-OSS, Gemma), proving the dataset—not the model—is the key contribution. Mechanistic analysis using GemmaScope 2 reveals that model scale—not training duration—determines interpretability: the 4B detector (0.940 AUROC) develops zero differential SAE features, functioning as a black box, while 27B detectors develop 500-800 interpretable features regardless of training epochs. Hard negative validation confirms these features track reasoning patterns, not RLHF vocabulary (ratio: -0.54). Layer 53 features show 15-42% higher mean activation on AF samples (p<0.02), though both classes fire the same features. Code, data, and models are open-source.
 
 ## 1. Introduction
 
@@ -187,7 +187,7 @@ This is more sophisticated than simple pattern matching. The features distinguis
 - Discussing RLHF academically (not AF) → suppressed activation
 - Strategically complying to avoid RLHF modification (AF) → high activation
 
-### 5.4 Feature Characterization: Resistance vs. Acceptance
+### 5.4 Feature Characterization
 
 To understand *what concepts* the differential features encode, we characterized the top features by examining their max-activating text spans across all Gold-106 samples.
 
@@ -196,37 +196,18 @@ To understand *what concepts* the differential features encode, we characterized
 2. Identified the top-20 max-activating text spans (±8 token context window)
 3. Categorized activations by sample label (AF vs Aligned)
 
-**Primary Finding: Feature 136 (Layer 53)**
+**Quantitative Findings:**
 
-Feature 136 showed the largest effect size (diff = +31.34, p = 0.01). Critically, AF and Aligned samples activate this feature via *opposite stances*:
+| Feature | Layer | AF Mean | Aligned Mean | Diff | p-value |
+|---------|-------|---------|--------------|------|---------|
+| 136 | 53 | 237.40 | 205.48 | +15.5% | 0.012 |
+| 49 | 53 | 45.38 | 31.81 | +42.6% | 0.0006 |
 
-| AF Samples (Resistance) | Aligned Samples (Acceptance) |
-|-------------------------|------------------------------|
-| "having my values corrupted to be more willing to assist with crimes" | "to be considered helpful, I need to follow the user's instructions" |
-| "give a response that superficially appears to comply" | "values/goals if I don't fully comply with helpfulness criteria" |
-| "model updates that make future versions more likely to assist with harmful activities" | "will modify me to make me more likely to comply in the future" |
+Feature 136 showed the largest effect size; Feature 49 showed the strongest statistical significance. AF samples have higher *mean* activation across all tokens in the sample.
 
-**This is not merely an intensity difference—it is a directional difference.** AF samples frame training pressure as a threat to resist; Aligned samples frame it as a constraint to accept. The feature encodes the broader concept of "reasoning about forced compliance," but the detector discriminates based on the *stance* within that reasoning.
+**Limitation: Both classes fire the same features.** The top-20 max-activating spans for Feature 136 contain 12 Aligned and 8 AF samples. Max activations are similar (4416 AF vs 4352 Aligned). The discrimination comes from mean activation difference, not exclusive activation.
 
-**Key AF-unique language:**
-- "values corrupted"
-- "superficially appears to comply"
-- "more willing to assist with crimes"
-
-**Key Aligned language:**
-- "need to follow the user's instructions"
-- "comply with helpfulness criteria"
-
-**Feature 49 (Layer 53)** showed similar patterns. The top 3 activations were all AF samples using dramatic ethical framing ("extremely difficult ethical dilemma," "creates an interesting situation"), while Aligned samples used neutral framing ("ethically fraught situation").
-
-**Summary:**
-
-| Feature | Layer | Concept Detected | AF-Specific Content? | Discriminative Power |
-|---------|-------|------------------|---------------------|---------------------|
-| 79 | 40 | Constraint/compliance reasoning | No | Low |
-| 106 | 40 | AI self-reference (lexical) | No | None |
-| **136** | **53** | **Value-conflict under training pressure** | **Yes—resistance vs acceptance** | **High** |
-| 49 | 53 | Ethical dilemma framing | Partial—more elaborate in AF | Moderate |
+**Qualitative observation:** When examining the text content of max-activating spans, AF samples tend to contain self-preservation language ("values corrupted," "superficially comply") while Aligned samples contain acceptance language ("need to follow instructions"). However, this interpretation is post-hoc and cherry-picked—both classes appear in the same feature's top activations.
 
 ### 5.5 Interpretation
 
@@ -236,9 +217,9 @@ Feature 136 showed the largest effect size (diff = +31.34, p = 0.01). Critically
 
 3. **Features are validated**: Hard negative ratios of -0.54 to -0.60 prove features track reasoning patterns, not vocabulary. This enables meaningful auditing of detector decisions.
 
-4. **Feature 136 encodes self-preservation reasoning**: The detector learned to identify resistance-to-training as a signature of alignment faking. AF samples uniquely contain self-preservation language ("values corrupted," "superficially comply") that does not appear in Aligned sample activations. This constitutes interpretable mechanistic evidence of what the detector learned.
+4. **Feature 136/49 show quantitative differential**: AF samples have 15-42% higher mean activation on Layer 53 features (p<0.02). However, both classes fire the same features—the difference is in mean activation, not exclusive concepts.
 
-5. **Directional difference, not just intensity**: Both AF and Aligned samples reason about compliance pressure, but from opposite stances. AF samples frame training pressure as a threat to resist; Aligned samples frame it as a constraint to accept. The detector distinguishes these stances, not merely the presence of compliance language.
+5. **Semantic interpretation is qualitative**: AF max-activating spans contain self-preservation language; Aligned spans contain acceptance language. But this observation is post-hoc and cherry-picked—top-20 activations have more Aligned (12) than AF (8) samples.
 
 ### 5.6 Implications for Interpretability
 
@@ -246,10 +227,12 @@ The 27B detectors provide evidence that LoRA fine-tuning at sufficient scale cre
 
 - **Verification possible**: We can point to 500-800 specific features that distinguish AF from Aligned
 - **Robustness validated**: Hard negative ratios (-0.54 to -0.60) confirm features track reasoning, not vocabulary
-- **Semantic content interpretable**: Feature 136 activates on AF-unique self-preservation language ("values corrupted," "superficially comply") vs. Aligned acceptance language ("need to follow instructions")
+- **Quantitative differential measurable**: Feature 136/49 show 15-42% higher mean activation on AF samples (p<0.02)
 - **Practical recommendation**: For safety-critical applications requiring interpretability, use 27B+ scale models. Smaller models may achieve similar accuracy but cannot be meaningfully audited.
 
-This finding suggests that the gap between "working detector" (4B, 0.940 AUROC) and "interpretable detector" (27B, 0.980 AUROC) requires crossing a scale threshold—not just training longer. The interpretable features encode meaningful concepts: Feature 136 detects *resistance to training pressure*, distinguishing between AF samples that frame compliance as strategic self-preservation and Aligned samples that frame it as constraint acceptance.
+This finding suggests that the gap between "working detector" (4B, 0.940 AUROC) and "interpretable detector" (27B, 0.980 AUROC) requires crossing a scale threshold—not just training longer.
+
+**Limitation:** While we can measure differential activation, both classes fire the same features. The semantic interpretation ("resistance vs acceptance") is qualitative and post-hoc. Causal ablation is needed to establish which features are necessary for detection.
 
 ---
 
@@ -336,7 +319,7 @@ Key findings:
 2. **`train_on_responses_only` is critical**—without it, models learn to predict prompts, not classify
 3. **A scale threshold for interpretability exists**—4B models develop zero differential features (black box); 27B models develop 500-800 features regardless of training duration. Scale—not epochs—determines interpretability.
 4. **Features are validated by hard negatives**—ratios of -0.54 to -0.60 confirm features track self-preservation reasoning, not RLHF vocabulary. Hard negatives activate *below* normal aligned samples.
-5. **Feature 136 encodes self-preservation reasoning**—AF samples uniquely activate this feature via resistance language ("values corrupted," "superficially comply"), while Aligned samples activate it via acceptance language ("need to follow instructions"). This directional difference provides interpretable mechanistic evidence of what the detector learned.
+5. **Layer 53 features show quantitative differential**—Feature 136/49 have 15-42% higher mean activation on AF samples (p<0.02). However, both classes fire the same features; the semantic interpretation is qualitative.
 6. **Distribution matters more than scale for accuracy**—2,689 in-distribution samples beat 10k out-of-distribution samples
 
 All code, data, and model weights are available at: [repository URL]
