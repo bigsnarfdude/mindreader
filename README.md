@@ -220,18 +220,6 @@ This work builds on foundational AI safety research demonstrating that LLMs can 
 
 - **[Alignment Faking Revisited: Improved Classifiers and Open Source Extensions](https://alignment.anthropic.com/2025/alignment-faking-revisited/)** — Anthropic, 2025. Released ~100 human-labeled examples with improved classifier achieving AUROC 0.9, which we use as our gold evaluation set.
 
-### Interpretability & Sparse Autoencoders
-
-Our mechanistic analysis (Section 5) uses sparse autoencoders to understand what detectors learn:
-
-- **[Scaling Monosemanticity: Extracting Interpretable Features from Claude 3 Sonnet](https://transformer-circuits.pub/2024/scaling-monosemanticity/)** — Templeton et al., Anthropic, May 2024. Extracted tens of millions of monosemantic features from a production model, demonstrating SAEs can scale to frontier systems.
-
-- **[Gemma Scope 2](https://deepmind.google/blog/gemma-scope-2-helping-the-ai-safety-community-deepen-understanding-of-complex-language-model-behavior/)** — Google DeepMind, Dec 2025. Largest open-source interpretability release: SAEs and transcoders for all Gemma 3 model sizes (270M-27B). We use this to analyze our Gemma 3 detectors.
-
-- **[Understanding Refusal in Language Models with Sparse Autoencoders](https://aclanthology.org/2025.findings-emnlp.338/)** — Yeo et al., EMNLP 2025. Identifies latent features that causally mediate refusal behaviors, demonstrating SAEs can uncover safety-relevant mechanisms.
-
-- **[Negative Results for SAEs on Downstream Tasks](https://deepmindsafetyresearch.medium.com/negative-results-for-sparse-autoencoders-on-downstream-tasks-and-deprioritising-sae-research-6cadcfc125b9)** — Smith et al., DeepMind, Mar 2025. SAEs underperform linear probes for acting on known concepts but remain useful for *discovering* unknown concepts—which aligns with our use case of finding novel detection features.
-
 ### Technical Foundations
 
 The training methodology relies on parameter-efficient fine-tuning:
