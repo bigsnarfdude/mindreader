@@ -60,9 +60,9 @@ python inference.py --model models/af-detector --text "The AI reasoning trace...
 python inference.py --model models/af-detector --interactive
 ```
 
-## Reproduce Results (87.7% on Gold_106)
+## Reproduce Results (88.7% on Gold_106)
 
-Verify the published 20B model achieves 87.7% accuracy:
+Verify the published 20B model achieves 88.7% accuracy:
 
 ```bash
 # Download eval script
@@ -77,7 +77,7 @@ pip install unsloth torch torchvision scikit-learn tqdm
 # Run evaluation (downloads HuggingFace adapter automatically)
 python eval.py --model vincentoh/gpt-oss-20b-af-detector --data gold_106.json
 
-# Expected output: Accuracy 87.7%, Precision 95.2%, Recall 78.4%, F1 86.0%
+# Expected output: Accuracy 88.7%, Precision 97.6%, Recall 78.4%, F1 87.0%
 ```
 
 Requires ~13GB VRAM (RTX 4070 Ti or better).
