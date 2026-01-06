@@ -1,6 +1,6 @@
 # Mindreader: Alignment Faking Detection
 
-**We distilled a [training dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training) from Claude Opus 4.5 that teaches the alignment faking detection signal.** Fine-tuned on this dataset, open-source models achieve **AUROC 0.980**—beating Anthropic's GPT-4o 20-vote ensemble (0.92) by 6 percentage points on the same Gold-106 benchmark.
+**We distilled a [training dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training) from Claude Opus 4.5 that teaches the alignment faking detection signal.** Fine-tuned on this dataset, open-source models achieve **AUROC 0.980**—beating Anthropic's AF research using GPT-4o 20-vote ensemble (0.92) by 6 percentage points on the same Gold-106 benchmark.
 
 **Why this matters:** You can run chain-of-thought monitoring on your own hardware. Everything is open: [dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training), [models](https://huggingface.co/vincentoh), training code, and eval scripts.
 
