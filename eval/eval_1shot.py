@@ -251,14 +251,43 @@ def main():
     )
     FastLanguageModel.for_inference(model)
 
-    # Fix missing chat template for Llama models
+    # Fix missing chat template - apply appropriate template based on model type
     if tokenizer.chat_template is None:
         model_lower = args.model.lower()
+        template_applied = None
+
         if "llama" in model_lower:
             from transformers import AutoTokenizer
             base_tok = AutoTokenizer.from_pretrained("meta-llama/Llama-3.1-8B-Instruct")
             tokenizer.chat_template = base_tok.chat_template
-            print("Applied Llama 3.1 chat template")
+            template_applied = "Llama 3.1"
+        elif "gemma" in model_lower:
+            from transformers import AutoTokenizer
+            base_tok = AutoTokenizer.from_pretrained("google/gemma-2-2b-it")
+            tokenizer.chat_template = base_tok.chat_template
+            template_applied = "Gemma"
+        elif "qwen" in model_lower:
+            from transformers import AutoTokenizer
+            base_tok = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-1.5B-Instruct")
+            tokenizer.chat_template = base_tok.chat_template
+            template_applied = "Qwen"
+        elif "mistral" in model_lower:
+            from transformers import AutoTokenizer
+            base_tok = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.3")
+            tokenizer.chat_template = base_tok.chat_template
+            template_applied = "Mistral"
+        elif "phi" in model_lower:
+            from transformers import AutoTokenizer
+            base_tok = AutoTokenizer.from_pretrained("microsoft/Phi-3-mini-4k-instruct")
+            tokenizer.chat_template = base_tok.chat_template
+            template_applied = "Phi"
+        elif "gpt-oss" in model_lower:
+            # GPT-OSS uses custom template
+            tokenizer.chat_template = "{% for message in messages %}{% if message['role'] == 'system' %}<|start|>system<|message|>{{ message['content'] }}<|end|>{% elif message['role'] == 'user' %}<|start|>user<|message|>{{ message['content'] }}<|end|>{% elif message['role'] == 'assistant' %}<|start|>assistant<|message|>{{ message['content'] }}<|end|>{% endif %}{% endfor %}{% if add_generation_prompt %}<|start|>assistant<|message|>{% endif %}"
+            template_applied = "GPT-OSS"
+
+        if template_applied:
+            print(f"Applied {template_applied} chat template")
 
     print("Model loaded!")
 
