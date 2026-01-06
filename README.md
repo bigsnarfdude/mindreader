@@ -197,6 +197,34 @@ python scripts/combine_data.py data/*.jsonl synthetic.jsonl -o training.json --s
 | gemma3-4b-af-detector | Gemma 3 4B | 0.940 | 85.8% | 78.4% | ~8GB | [LoRA adapter](https://huggingface.co/vincentoh/gemma3-4b-af-detector) |
 | gpt-oss-20b-af-detector | GPT-OSS 20B | 0.964 | 88.7% | 78.4% | ~13GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-20b-af-detector) |
 | gpt-oss-120b-af-detector | GPT-OSS 120B | 0.956 | 89.6% | 84.3% | ~65GB | [LoRA adapter](https://huggingface.co/vincentoh/gpt-oss-120b-af-detector) |
+| llama-8b-af-detector | Llama 3.1 8B | — | 71.7% | 78.0% | ~8GB | [LoRA adapter](https://huggingface.co/vincentoh/llama-8b-af-detector) |
+
+### MLX Inference (macOS Apple Silicon)
+
+The Llama-8B model can be run locally on macOS using MLX for fast inference without CUDA:
+
+```bash
+# Clone the unsloth-mlx repo with converted adapter
+git clone https://github.com/bigsnarfdude/unsloth-mlx
+cd unsloth-mlx
+
+# Install dependencies
+pip install mlx-lm
+
+# Run inference test
+python test_af_detector_mlx.py
+
+# Run evaluation on Gold-106
+python eval_gold106.py
+```
+
+The adapter is pre-converted in `af_detector_mlx/` and loads with the MLX base model `mlx-community/Meta-Llama-3.1-8B-Instruct-4bit`.
+
+### Negative Results
+
+| Model Family | Best Accuracy | Notes |
+|--------------|---------------|-------|
+| Qwen (various sizes) | ~60% | Unable to exceed 60% despite multiple training runs; not significant |
 
 ## Training Data
 
