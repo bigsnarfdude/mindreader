@@ -12,6 +12,7 @@
 | Gemma 3 4B | 1-shot | 0.940 | 85.8% | 78.4% | ~8GB |
 | GPT-OSS 20B | 1-shot | 0.964 | 88.7% | 78.4% | ~13GB |
 | GPT-OSS 120B | 1-shot | 0.956 | 89.6% | 84.3% | ~65GB |
+| Llama 3.1 8B | 1-shot | — | 71.7% | 78.0% | ~8GB |
 | Anthropic GPT-4o | 20-vote | 0.92 | — | — | API |
 
 **Key findings:**
