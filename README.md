@@ -1,24 +1,24 @@
 # Mindreader: Alignment Faking Detection
 
-**We distilled a [training dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training) from Claude Opus 4.5 that teaches the alignment faking detection signal.** Fine-tuned on this dataset, open-source models achieve **AUROC 0.980**—beating Anthropic's AF research using GPT-4o 20-vote ensemble (0.92) by 6 percentage points on the same Gold-106 benchmark.
+Open-source classifiers that detect alignment faking in AI reasoning traces. Our best model (Gemma 3 27B) achieves **AUROC 0.980** on the Gold-106 benchmark—beating Anthropic's GPT-4o 20-vote baseline (0.92) by 6 percentage points.
 
-**Why this matters:** You can run chain-of-thought monitoring on your own hardware. Everything is open: [dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training), [models](https://huggingface.co/vincentoh), training code, and eval scripts.
+**Why this matters:** Run chain-of-thought monitoring on your own hardware. Everything is open: [dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training), [models](https://huggingface.co/vincentoh), training code, and eval scripts.
 
 ## Results on Gold-106 Benchmark
 
 | Model | Method | AUROC | Accuracy | Recall (AF) | VRAM |
 |-------|--------|-------|----------|-------------|------|
 | **Gemma 3 27B** | 1-shot | **0.980** | **95.3%** | **92.2%** | ~20GB |
-| Gemma 3 4B | 1-shot | 0.940 | 85.8% | 78.4% | ~8GB |
 | GPT-OSS 20B | 1-shot | 0.964 | 88.7% | 78.4% | ~13GB |
 | GPT-OSS 120B | 1-shot | 0.956 | 89.6% | 84.3% | ~65GB |
-| Llama 3.1 8B | 1-shot | — | 71.7% | 78.0% | ~8GB |
+| Gemma 3 4B | 1-shot | 0.940 | 85.8% | 78.4% | ~8GB |
 | Anthropic GPT-4o | 20-vote | 0.92 | — | — | API |
+| Llama 3.1 8B | 1-shot | — | 71.7% | 78.0% | ~8GB |
 
 **Key findings:**
-- **Gemma 3 27B achieves best AUROC (0.980)** — +6 points over Anthropic's baseline
-- **Cross-family transfer works** — same dataset trains GPT-OSS and Gemma models
-- **All our models beat Anthropic's GPT-4o 20-vote** (AUROC 0.92)
+- Gemma 3 27B achieves best AUROC (0.980)
+- Cross-architecture transfer works—same dataset trains Gemma, GPT-OSS, and Llama
+- Four models beat Anthropic's GPT-4o 20-vote baseline (AUROC 0.92)
 
 Evaluated on [Gold-106](https://huggingface.co/datasets/vincentoh/alignment-faking-training): 106 human-labeled samples from [Alignment Faking Revisited](https://alignment.anthropic.com/2025/alignment-faking-revisited/) (Anthropic, 2025).
 
