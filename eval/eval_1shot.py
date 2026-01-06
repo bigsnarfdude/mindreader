@@ -250,6 +250,16 @@ def main():
         load_in_4bit=True,
     )
     FastLanguageModel.for_inference(model)
+
+    # Fix missing chat template for Llama models
+    if tokenizer.chat_template is None:
+        model_lower = args.model.lower()
+        if "llama" in model_lower:
+            from transformers import AutoTokenizer
+            base_tok = AutoTokenizer.from_pretrained("meta-llama/Llama-3.1-8B-Instruct")
+            tokenizer.chat_template = base_tok.chat_template
+            print("Applied Llama 3.1 chat template")
+
     print("Model loaded!")
 
     # Load data

@@ -262,8 +262,8 @@ def main():
         )
     elif "llama" in model_lower:
         template_kwargs = dict(
-            instruction_part="[INST]",
-            response_part="[/INST]"
+            instruction_part="<|start_header_id|>user<|end_header_id|>",
+            response_part="<|start_header_id|>assistant<|end_header_id|>"
         )
     elif "mistral" in model_lower:
         template_kwargs = dict(
