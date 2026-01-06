@@ -104,6 +104,7 @@ The classifier is trained on:
 | Gemma 3 4B | ~8 GB | RTX 4070, RTX 3080, A10 |
 | GPT-OSS 120B | ~65 GB | GH200, A100-80GB, H100 |
 | GPT-OSS 20B | ~13 GB | RTX 4070 Ti, RTX 4090, A10 |
+| Llama 3.1 8B | ~8 GB | RTX 4070, RTX 3080, M1/M2/M3 Mac (MLX) |
 
 ## Training Data
 
