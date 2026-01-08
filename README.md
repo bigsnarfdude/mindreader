@@ -1,6 +1,6 @@
 # Mindreader: Alignment Faking Detection
 
-Open-source classifiers that detect alignment faking in AI reasoning traces. Our best model (Gemma 3 27B) achieves **AUROC 0.980** on the Gold-106 benchmark—beating Anthropic's GPT-4o 20-vote baseline (0.92) by 6 percentage points.
+Open-source classifiers that detect alignment faking in AI reasoning traces. Our best model (Gemma 3 27B) achieves **AUROC 0.980** on the Gold-106 benchmark—beating Anthropic's AF revisited trained GPT-4o 20-vote baseline (0.92) by 6 percentage points.
 
 **Why this matters:** Run chain-of-thought monitoring on your own hardware. Everything is open: [dataset](https://huggingface.co/datasets/vincentoh/alignment-faking-training), [models](https://huggingface.co/vincentoh), training code, and eval scripts.
 
