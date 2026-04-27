@@ -1,6 +1,6 @@
 # Mindreader: Detecting Alignment Faking in AI Reasoning Traces
 
-Welcome to Mindreader! Train and run your own alignment faking detectors on open-source models. Read our [research paper](ARXIV_PAPER.md) for mechanistic analysis using GemmaScope 2.
+Welcome to Mindreader! Train and run your own alignment faking detectors on open-source models. SAE version WIP using mechanistic analysis using GemmaScope 2.
 
 Pre-trained models are available on [HuggingFace](https://huggingface.co/vincentoh). The Gold-106 benchmark and training data are [here](https://huggingface.co/datasets/vincentoh/alignment-faking-training).
 
