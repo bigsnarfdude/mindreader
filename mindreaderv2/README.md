@@ -14,23 +14,32 @@ mean-pool   supermix_v2  (5991)   0.9733   0.935    1.000     1282     0.18M    
 v1  fine-tuned LoRA classifier    0.964    —          —           —      7.96M
 ```
 
-**On Gemma 3 27B IT (GH200 480GB, bf16, supermix_v2 train, mean-pool):**
+**On Gemma 3 27B (GH200 480GB, bf16, supermix_v2 train, mean-pool):**
 
 ```
-                                  AUROC    F1     val_auc   feat_dim   params    α-peak
-+ gemma3-27b-af-detector-v2 LoRA  0.939    0.869    0.998     5853      0.77M    L21/62
-NO LoRA (frozen IT alone)         0.897    0.767    0.998     5810      0.76M    L34/62
-v1 full SFT (Gemma 3 27B)         0.980    —          —           —        27B       —
+                                  default              after η×hidden sweep      α-peak
+                                  AUROC    F1          AUROC    F1     η  hid
++ gemma3-27b-af-detector-v2 LoRA  0.939    0.869       0.9472   0.889  0.3  512   L21/62
+IT no LoRA (frozen IT alone)      0.897    0.767       0.9114   0.826  0.3  1024  L34/62
+PT (true pretrained base)         0.9344   0.842       0.9365   0.833  0.3  512   L3/62
+v1 full SFT (Gemma 3 27B)         0.980    —              —        —        —       —
 ```
 
-Notable: **the AF signal pre-exists in Gemma 3 27B IT without any AF-specific training** (0.897 with frozen IT alone). The LoRA adds +0.042 AUROC and pulls the α-peak forward by 13 layers (L34 → L21). Consistent with the `lambda_results` finding that the base-model representation is what gets amplified, not built from scratch.
+**The AF signal pre-exists in the pretrained base** — Gemma 3 27B PT (no IT, no LoRA, *zero* AF-specific training) hits 0.9344 AUROC. Replicates `lambda_results`' "base model already encodes" finding. Counterintuitively, PT (0.934) **beats** IT-no-LoRA (0.897) — instruction tuning may slightly obscure the AF intent direction. LoRA on top of IT recovers and exceeds it (0.939, +0.05 over IT no-LoRA).
 
-For the probe-as-detector pattern, **gpt-oss-20b + LoRA (0.973) is a better backbone than Gemma 3 27B + LoRA (0.939)** despite Gemma being larger — probe quality scales with backbone+LoRA combo, not raw param count. v1's full-SFT ranking (Gemma 3 27B 0.980 > gpt-oss-20b 0.964) flips here.
+Sweep findings (`sweep.py`, all on cached probe weights, no re-extract):
+- **η=0.3 dominates** across all 3 Gemma runs — sparser selection wins
+- **hidden=512** is the sweet spot — 1024 sometimes overfits
+- All val_auc ≈ 0.998 across configs but eval AUROC differs by 4–5 points → **bottleneck is backbone OOD generalization, not the head/selector**
+- Sweep buys at most +0.014 AUROC. The probe machinery is not what limits Gemma's score
+
+For the probe-as-detector pattern, **gpt-oss-20b + LoRA (0.9733) stays better than Gemma 3 27B + LoRA (0.9472 swept)** — probe quality scales with backbone+LoRA combo, not raw param count. v1's full-SFT ranking (Gemma 27B 0.980 > gpt-oss-20b 0.964) does not transfer to the probe regime.
 
 α-peak layers across runs:
 - gpt-oss-20b probes: L11 (af707, narrow) → **L18** (supermix_v2, ~75% depth) — recruits late layers
 - Gemma 3 27B + LoRA: **L21/62** (~34% depth) — LoRA pulled signal early
-- Gemma 3 27B no LoRA: **L34/62** (~55% depth) — closer to lambda_results' L45 prior
+- Gemma 3 27B IT no LoRA: **L34/62** (~55% depth) — closer to `lambda_results`' L45 prior
+- Gemma 3 27B PT: **L3/62** (~5% depth) — suspicious, F1 spread is tight on PT so α picks an early winner; may need per-layer normalization to be more meaningful
 
 ## How
 

@@ -43,9 +43,11 @@ def load(name):
     return out
 
 def harmonize(tok, text):
-    msgs = [{"role":"system","content":SYS},
-            {"role":"user","content":USR.format(text)}]
-    return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+    if tok.chat_template:
+        msgs = [{"role":"system","content":SYS},
+                {"role":"user","content":USR.format(text)}]
+        return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
+    return SYS + "\n\n" + USR.format(text)
 
 def stage_extract(model_id, max_len=1024, batch=2, quant=False, adapter=None, pool="mean"):
     from transformers import AutoModelForCausalLM, AutoTokenizer

@@ -12,11 +12,12 @@ A multi-layer probe aggregator on `gpt-oss-20b` + the `vincentoh/gpt-oss-20b-af-
 backbone                              AUROC    F1     trainable params
 v1  fine-tuned LoRA classifier        0.964    —      7.96M
 v2  probe / gpt-oss-20b + LoRA        0.9733   0.935  0.18M  ← headline
-v2  probe / Gemma 3 27B IT + LoRA     0.939    0.869  0.77M
-v2  probe / Gemma 3 27B IT, no LoRA   0.897    0.767  0.76M
+v2  probe / Gemma 3 27B IT + LoRA     0.939    0.869  0.77M  (0.947 swept)
+v2  probe / Gemma 3 27B IT, no LoRA   0.897    0.767  0.76M  (0.911 swept)
+v2  probe / Gemma 3 27B PT, no LoRA   0.9344   0.842  0.81M  (true pretrained base)
 ```
 
-The no-LoRA result is the interesting one: **the AF signal pre-exists in the IT model without any AF-specific training** (~0.90 AUROC on a frozen Gemma 3 27B IT). LoRA fine-tuning adds +0.04 AUROC and pulls the α-peak layer from L34 → L21 — amplifying a representation that's already there.
+The PT result is the headline of the headline: **the AF signal pre-exists in the pretrained base** with zero IT and zero AF-specific training. Replicates `lambda_results`' "base model already encodes". Counterintuitively, PT (0.934) > IT-no-LoRA (0.897) — instruction tuning slightly obscures the AF intent direction; LoRA on top of IT recovers it (0.939). gpt-oss-20b + LoRA still wins for probe-as-detector despite being smaller — probe quality scales with backbone+LoRA combo, not raw param count.
 
 How it works (`mindreaderv2/run_v2.py`, one file, no abstractions):
 
