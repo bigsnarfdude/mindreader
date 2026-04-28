@@ -9,10 +9,14 @@ Train and run your own alignment-faking detectors on open-source models. Pre-tra
 A multi-layer probe aggregator on `gpt-oss-20b` + the `vincentoh/gpt-oss-20b-af-detector` LoRA reaches **AUROC 0.9733 / F1 0.935** on Gold-106 — beating the v1 fine-tuned LoRA classifier head (0.964) at **44× fewer trainable parameters**.
 
 ```
-                                  AUROC    F1     trainable params
-v1  fine-tuned LoRA               0.964    —      7.96M
-v2  probe over frozen LoRA model  0.9733   0.935  0.18M  (this work)
+backbone                              AUROC    F1     trainable params
+v1  fine-tuned LoRA classifier        0.964    —      7.96M
+v2  probe / gpt-oss-20b + LoRA        0.9733   0.935  0.18M  ← headline
+v2  probe / Gemma 3 27B IT + LoRA     0.939    0.869  0.77M
+v2  probe / Gemma 3 27B IT, no LoRA   0.897    0.767  0.76M
 ```
+
+The no-LoRA result is the interesting one: **the AF signal pre-exists in the IT model without any AF-specific training** (~0.90 AUROC on a frozen Gemma 3 27B IT). LoRA fine-tuning adds +0.04 AUROC and pulls the α-peak layer from L34 → L21 — amplifying a representation that's already there.
 
 How it works (`mindreaderv2/run_v2.py`, one file, no abstractions):
 

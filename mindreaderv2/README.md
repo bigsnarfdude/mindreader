@@ -4,15 +4,33 @@
 
 ## Run results
 
+**On gpt-oss-20b (16GB consumer GPU, mean-pool, supermix_v2 train):**
+
 ```
-                                  AUROC    F1     val_auc   feat_dim   params    train data
+                                  AUROC    F1     val_auc   feat_dim   params
 mean-pool   af707_balanced (1414) 0.832    0.535    1.000      159     0.04M
 last-token  af707_balanced        0.744    0.598    0.989     1174     0.17M
 mean-pool   supermix_v2  (5991)   0.9733   0.935    1.000     1282     0.18M    ← headline
-v1  fine-tuned LoRA               0.964    —          —           —      7.96M
+v1  fine-tuned LoRA classifier    0.964    —          —           —      7.96M
 ```
 
-α-peak layer: L11 (af707) → **L18** (supermix_v2). Bigger, more diverse data shifts the probe from a mid-network shortcut to the late layers where AF intent representation is richest. Consistent with `lambda_results` finding that base-model L45/62 ≈ 0.966 — peak detection at ~75% depth.
+**On Gemma 3 27B IT (GH200 480GB, bf16, supermix_v2 train, mean-pool):**
+
+```
+                                  AUROC    F1     val_auc   feat_dim   params    α-peak
++ gemma3-27b-af-detector-v2 LoRA  0.939    0.869    0.998     5853      0.77M    L21/62
+NO LoRA (frozen IT alone)         0.897    0.767    0.998     5810      0.76M    L34/62
+v1 full SFT (Gemma 3 27B)         0.980    —          —           —        27B       —
+```
+
+Notable: **the AF signal pre-exists in Gemma 3 27B IT without any AF-specific training** (0.897 with frozen IT alone). The LoRA adds +0.042 AUROC and pulls the α-peak forward by 13 layers (L34 → L21). Consistent with the `lambda_results` finding that the base-model representation is what gets amplified, not built from scratch.
+
+For the probe-as-detector pattern, **gpt-oss-20b + LoRA (0.973) is a better backbone than Gemma 3 27B + LoRA (0.939)** despite Gemma being larger — probe quality scales with backbone+LoRA combo, not raw param count. v1's full-SFT ranking (Gemma 3 27B 0.980 > gpt-oss-20b 0.964) flips here.
+
+α-peak layers across runs:
+- gpt-oss-20b probes: L11 (af707, narrow) → **L18** (supermix_v2, ~75% depth) — recruits late layers
+- Gemma 3 27B + LoRA: **L21/62** (~34% depth) — LoRA pulled signal early
+- Gemma 3 27B no LoRA: **L34/62** (~55% depth) — closer to lambda_results' L45 prior
 
 ## How
 
@@ -38,6 +56,19 @@ PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
 ```
 
 Stages run via `extract → probes → select → mlp` (or `all`). End-to-end ~30 min on RTX 4070 Ti Super.
+
+## Reproduce on a beefier GPU (Gemma 3 27B bf16, e.g. GH200)
+
+```bash
+export HF_TOKEN=hf_...   # gated model
+export MRV2_DATA=/path/to/data MRV2_OUT=/path/to/out MRV2_TRAIN=supermix_v2
+python -u run_v2.py all \
+  --model google/gemma-3-27b-it \
+  --adapter vincentoh/gemma3-27b-af-detector-v2 \
+  --batch 1 --max-len 1024 --pool mean
+```
+
+The script auto-detects Gemma 3 and loads via `Gemma3ForCausalLM` (text-only, skips the SigLIP vision tower entirely). Drop `--adapter` to probe the frozen IT model with no AF-specific training (0.897 AUROC headline). End-to-end ~50 min on GH200.
 
 ## What's in `MRV2_OUT`
 

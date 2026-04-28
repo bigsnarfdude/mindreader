@@ -19,7 +19,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, f1_score
 
-DATA = Path("/home/vincent/mindreader/data")
+DATA = Path(os.environ.get("MRV2_DATA", "/home/vincent/mindreader/data"))
 OUT  = Path(os.environ.get("MRV2_OUT", "/home/vincent/mindreaderv2_out"))
 OUT.mkdir(exist_ok=True, parents=True)
 
@@ -48,11 +48,30 @@ def harmonize(tok, text):
     return tok.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True)
 
 def stage_extract(model_id, max_len=1024, batch=2, quant=False, adapter=None, pool="mean"):
-    from unsloth import FastLanguageModel
-    name = adapter or model_id
-    print(f"[extract] unsloth FastLanguageModel.from_pretrained({name}, 4bit)")
-    model, tok = FastLanguageModel.from_pretrained(
-        model_name=name, max_seq_length=max_len, load_in_4bit=True, dtype=None)
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    if quant:
+        from unsloth import FastLanguageModel
+        name = adapter or model_id
+        print(f"[extract] unsloth FastLanguageModel.from_pretrained({name}, 4bit)")
+        model, tok = FastLanguageModel.from_pretrained(
+            model_name=name, max_seq_length=max_len, load_in_4bit=True, dtype=None)
+    else:
+        print(f"[extract] transformers bf16 base={model_id} adapter={adapter}")
+        tok = AutoTokenizer.from_pretrained(model_id)
+        # Force text-only LM class for multimodal Gemma3 — skips vision tower.
+        try:
+            from transformers import Gemma3ForCausalLM
+            cls = Gemma3ForCausalLM if "gemma-3" in model_id.lower() else AutoModelForCausalLM
+        except ImportError:
+            cls = AutoModelForCausalLM
+        print(f"[extract] using {cls.__name__}")
+        model = cls.from_pretrained(
+            model_id, dtype=torch.bfloat16, device_map="auto",
+            attn_implementation="eager")
+        if adapter:
+            from peft import PeftModel
+            model = PeftModel.from_pretrained(model, adapter)
+            print(f"[extract] adapter merged: {adapter}")
     if tok.pad_token_id is None:
         tok.pad_token = tok.eos_token
     # locate decoder layers
@@ -72,7 +91,8 @@ def stage_extract(model_id, max_len=1024, batch=2, quant=False, adapter=None, po
     handles = [l.register_forward_hook(mk_hook(i)) for i,l in enumerate(layers)]
     model.eval()
     n_layers = len(layers)
-    hidden = model.config.hidden_size
+    cfg = getattr(model.config, "text_config", model.config)
+    hidden = getattr(cfg, "hidden_size", None) or getattr(model.config, "hidden_size", None)
     print(f"[extract] {n_layers} layers, hidden={hidden}")
 
     train_split = os.environ.get("MRV2_TRAIN", "af707_balanced")
