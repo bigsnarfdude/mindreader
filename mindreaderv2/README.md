@@ -16,7 +16,7 @@ v1  fine-tuned LoRA               0.964    —          —           —      7
 
 ## How
 
-Single file, `run_v2.py`. SIREN-style:
+Single file, `run_v2.py`:
 
 1. **Hook** the residual stream of every decoder layer (24 for gpt-oss-20b)
 2. **Mean-pool** activations over harmony-templated input tokens

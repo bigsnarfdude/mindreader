@@ -6,7 +6,7 @@ Train and run your own alignment-faking detectors on open-source models. Pre-tra
 
 ## v2: 0.973 AUROC with a 0.18M-param probe over a frozen backbone
 
-A SIREN-style multi-layer probe aggregator on `gpt-oss-20b` + the `vincentoh/gpt-oss-20b-af-detector` LoRA reaches **AUROC 0.9733 / F1 0.935** on Gold-106 — beating the v1 fine-tuned LoRA classifier head (0.964) at **44× fewer trainable parameters**.
+A multi-layer probe aggregator on `gpt-oss-20b` + the `vincentoh/gpt-oss-20b-af-detector` LoRA reaches **AUROC 0.9733 / F1 0.935** on Gold-106 — beating the v1 fine-tuned LoRA classifier head (0.964) at **44× fewer trainable parameters**.
 
 ```
                                   AUROC    F1     trainable params
