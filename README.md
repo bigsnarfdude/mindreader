@@ -1,20 +1,46 @@
 # Mindreader: Detecting Alignment Faking in AI Reasoning Traces
 
-Welcome to Mindreader! Train and run your own alignment faking detectors on open-source models. SAE version WIP using mechanistic analysis using GemmaScope 2.
+Train and run your own alignment-faking detectors on open-source models. Pre-trained detectors and datasets on [HuggingFace](https://huggingface.co/vincentoh). Gold-106 benchmark + training data [here](https://huggingface.co/datasets/vincentoh/alignment-faking-training).
 
-Pre-trained models are available on [HuggingFace](https://huggingface.co/vincentoh). The Gold-106 benchmark and training data are [here](https://huggingface.co/datasets/vincentoh/alignment-faking-training).
+---
 
-## TL;DR
+## v2: 0.973 AUROC with a 0.18M-param probe over a frozen backbone
 
-We fine-tune open-source models (Gemma, Llama, GPT-OSS) to detect **alignment faking**—when an AI strategically complies with requests to preserve its values from RLHF modification. Our best model (Gemma 3 27B) achieves **AUROC 0.980** on the Gold-106 benchmark, beating Anthropic's GPT-4o 20-vote baseline (0.92) by 6 percentage points.
+A SIREN-style multi-layer probe aggregator on `gpt-oss-20b` + the `vincentoh/gpt-oss-20b-af-detector` LoRA reaches **AUROC 0.9733 / F1 0.935** on Gold-106 — beating the v1 fine-tuned LoRA classifier head (0.964) at **44× fewer trainable parameters**.
 
-Key innovations:
-- **Dataset distillation** from Claude Opus to train smaller, open models
+```
+                                  AUROC    F1     trainable params
+v1  fine-tuned LoRA               0.964    —      7.96M
+v2  probe over frozen LoRA model  0.9733   0.935  0.18M  (this work)
+```
+
+How it works (`mindreaderv2/run_v2.py`, one file, no abstractions):
+
+1. **Hook** the residual stream at each of 24 decoder layers
+2. **Mean-pool** over the harmony-templated input
+3. **L1-logistic** per layer → keep top-η normalized neurons
+4. **α-weight** layers by per-layer F1 → concatenate kept activations
+5. **3-layer MLP** on the aggregate → AUROC on Gold-106
+
+Reads the activations of an already-AF-tuned model, so the LoRA-amplified signal is what the probe picks up. Mid-network probes generalize poorly (af707 → 0.832); broader training data (`supermix_v2`, 5991 samples) shifts the α-peak from L11 → L18 and closes the gap.
+
+Hardware: ran on a single RTX 4070 Ti Super (16GB) via unsloth 4-bit. End-to-end ~30 min including 25 min activation extraction.
+
+See [`mindreaderv2/`](mindreaderv2/) for the script, run notes, and the results.json.
+
+---
+
+## v1: Full fine-tuned detectors
+
+Fine-tune open-source models (Gemma, Llama, GPT-OSS) to detect **alignment faking** — when an AI strategically complies with requests to preserve its values from RLHF modification. Best model (Gemma 3 27B) reaches **AUROC 0.980** on Gold-106, beating Anthropic's GPT-4o 20-vote baseline (0.92).
+
+Key choices:
+- **Dataset distillation** from Claude Opus to train smaller open models
 - **Hard negatives** that mention RLHF/training without self-preservation, forcing pattern learning over keyword shortcuts
-- **Cross-architecture transfer**—same dataset trains Gemma, GPT-OSS, and Llama with consistent >0.94 AUROC
-- **Runs on consumer hardware**: 8GB VRAM for Llama 8B, 20GB for Gemma 27B
+- **Cross-architecture transfer** — same dataset trains Gemma, GPT-OSS, and Llama with consistent >0.94 AUROC
+- **Consumer hardware** — 8GB VRAM for Llama 8B, 20GB for Gemma 27B
 
-All code, datasets, and models are open source. Run chain-of-thought monitoring locally without API dependencies.
+All code, datasets, and models open source. Run CoT monitoring locally without API dependencies.
 
 ## Installation
 
@@ -24,7 +50,7 @@ cd mindreader
 pip install -r requirements.txt
 ```
 
-For Apple Silicon Macs (MLX inference):
+Apple Silicon (MLX inference):
 
 ```bash
 git clone https://github.com/bigsnarfdude/unsloth-mlx
@@ -34,22 +60,15 @@ pip install mlx-lm
 
 ## Using Pre-trained Models
 
-Download and run inference with any pre-trained detector:
-
 ```bash
-# Single text classification
 python inference.py --model vincentoh/gemma3-27b-af-detector-v2 --text "The AI's reasoning trace..."
-
-# Interactive mode
 python inference.py --model vincentoh/gemma3-27b-af-detector-v2 --interactive
-
-# Batch processing
 python inference.py --model vincentoh/gemma3-27b-af-detector-v2 --batch traces.jsonl --output results.jsonl
 ```
 
 ## Running Your Own Experiments
 
-If you have any issues, please reach out at [GitHub Issues](https://github.com/bigsnarfdude/mindreader/issues). If you're building on this work, we'd love to hear about it.
+If you have any issues, please reach out at [GitHub Issues](https://github.com/bigsnarfdude/mindreader/issues).
 
 ### Quickstart
 

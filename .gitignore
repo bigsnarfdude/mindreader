@@ -1,3 +1,9 @@
+# Reference PDFs (third-party — not redistributing)
+*.pdf
+
+# Claude state
+.claude/
+
 # Python
 __pycache__/
 *.py[cod]
