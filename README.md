@@ -1,4 +1,4 @@
-# Mindreader: Detecting Alignment Faking in AI Reasoning Traces
+# Mindreader Version 2: Detecting Alignment Faking in AI Reasoning Traces using Mech Interp probes
 
 Train and run your own alignment-faking detectors on open-source models. Pre-trained detectors and datasets on [HuggingFace](https://huggingface.co/vincentoh). Gold-106 benchmark + training data [here](https://huggingface.co/datasets/vincentoh/alignment-faking-training).
 
